@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>共享网盘 · GitHub 版</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    font-family:"Segoe UI","Microsoft YaHei",system-ui,sans-serif;
+    background:#f4f7fb; color:#1f2d3d; min-height:100vh;
+  }
+  header {
+    background:linear-gradient(135deg,#3b7cff,#2f5fd8);
+    color:#fff; padding:20px 24px; display:flex; align-items:center; justify-content:space-between;
+    flex-wrap:wrap; gap:10px;
+  }
+  header h1 { font-size:22px; font-weight:600; }
+  header .sub { font-size:13px; opacity:.85; margin-top:4px; }
+  .btn {
+    border:none; border-radius:10px; padding:10px 18px; font-size:14px; cursor:pointer;
+    transition:filter .15s;
+  }
+  .btn:hover { filter:brightness(1.08); }
+  .btn:disabled { opacity:.5; cursor:not-allowed; }
+  .btn-primary { background:#3b7cff; color:#fff; }
+  .btn-ghost { background:rgba(255,255,255,.16); color:#fff; }
+  .btn-line { background:#fff; color:#3b7cff; border:1px solid #cfe0ff; }
+  .wrap { max-width:1100px; margin:24px auto; padding:0 16px; }
+  .notice {
+    background:#fff7e8; border:1px solid #f2c94c; color:#8a6100;
+    border-radius:12px; padding:12px 16px; font-size:13px; line-height:1.7; margin-bottom:20px;
+  }
+  .grid { display:grid; grid-template-columns:1fr 1fr; gap:20px; }
+  @media (max-width:860px){ .grid { grid-template-columns:1fr; } }
+  .card {
+    background:#fff; border-radius:16px; padding:20px; box-shadow:0 2px 12px rgba(30,60,120,.06);
+  }
+  .card h2 { font-size:17px; margin-bottom:4px; color:#2c3e50; }
+  .card .hint { font-size:12px; color:#7a8aa0; margin-bottom:14px; }
+  label { display:block; font-size:13px; color:#4a5a70; margin:12px 0 6px; }
+  input[type=text], input[type=password], input[type=file] {
+    width:100%; padding:10px 12px; border:1px solid #d5e2f5; border-radius:10px;
+    font-size:14px; background:#fafcff; outline:none;
+  }
+  input:focus { border-color:#3b7cff; }
+  .drop {
+    border:2px dashed #b9d0f5; border-radius:12px; padding:26px; text-align:center;
+    color:#6b81a0; font-size:14px; cursor:pointer; background:#fafcff; margin-top:8px;
+  }
+  .drop.on { border-color:#3b7cff; background:#eef4ff; }
+  .fileinfo { font-size:13px; color:#3b7cff; margin-top:8px; word-break:break-all; }
+  .status { margin-top:12px; font-size:13px; line-height:1.6; min-height:20px; }
+  .status.ok { color:#1e8e5a; } .status.err { color:#d64545; } .status.info { color:#3b7cff; }
+  .progress { height:8px; background:#e6eefc; border-radius:4px; margin-top:8px; overflow:hidden; display:none; }
+  .progress > div { height:100%; width:0; background:#3b7cff; border-radius:4px; transition:width .2s; }
+  .sectabs { display:flex; gap:8px; margin-bottom:12px; }
+  .sectabs .tab {
+    padding:7px 14px; border-radius:999px; font-size:13px; background:#eef4ff; color:#3b7cff; cursor:pointer;
+  }
+  .sectabs .tab.act { background:#3b7cff; color:#fff; }
+  .branch {
+    display:flex; align-items:center; justify-content:space-between; gap:8px;
+    padding:10px 12px; border:1px solid #e3ecfa; border-radius:10px; margin-bottom:8px;
+    font-size:14px; cursor:pointer; background:#fafcff;
+  }
+  .branch:hover { border-color:#3b7cff; }
+  .branch .who { font-weight:600; color:#2c3e50; }
+  .branch .files { font-size:12px; color:#7a8aa0; }
+  .filelist { margin-top:10px; }
+  .fileitem {
+    display:flex; align-items:center; justify-content:space-between; gap:8px;
+    padding:9px 12px; border-bottom:1px solid #f0f5fd; font-size:13px;
+  }
+  .fileitem .name { color:#2c3e50; word-break:break-all; }
+  .fileitem a { color:#3b7cff; text-decoration:none; font-size:13px; white-space:nowrap; }
+  .fileitem a:hover { text-decoration:underline; }
+  .modal-mask {
+    position:fixed; inset:0; background:rgba(20,35,60,.45); display:none;
+    align-items:center; justify-content:center; z-index:50; padding:16px;
+  }
+  .modal {
+    background:#fff; border-radius:16px; padding:24px; width:100%; max-width:460px;
+  }
+  .modal h3 { font-size:17px; margin-bottom:14px; }
+  .modal .row { margin-bottom:10px; }
+  .modal .actions { display:flex; gap:10px; justify-content:flex-end; margin-top:16px; }
+  .small { font-size:12px; color:#8a94a6; line-height:1.6; }
+  .empty { text-align:center; color:#a0aec2; font-size:13px; padding:26px 0; }
+  footer { text-align:center; color:#a0aec2; font-size:12px; padding:24px 0 32px; }
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>共享网盘 · GitHub 版</h1>
+    <div class="sub">所有人可上传、可下载 · 每个用户一个分支空间</div>
+  </div>
+  <button class="btn btn-ghost" onclick="openSettings()">设置</button>
+</header>
+
+<div class="wrap">
+  <div class="notice">
+    <strong>使用前先点右上角「设置」填入你的 GitHub 信息。</strong>
+    <br>安全提醒：Token 是你的 GitHub 密钥，任何人拿到它都能改动你的仓库。这个网页如果部署成公开网站，<strong>不要把密钥填在公共电脑上</strong>，建议仅自己使用。单文件最大 100MB，可传任意类型文件。
+  </div>
+
+  <div class="grid">
+    <div class="card">
+      <h2>上传文件</h2>
+      <div class="hint">输入用户名 → 选文件 → 上传。文件会存进「以用户名命名的分支」。</div>
+      <label>你的用户名（用来建分支）</label>
+      <input type="text" id="uname" placeholder="例如：xiaoming">
+      <label>选择文件</label>
+      <div class="drop" id="drop">点击选择文件，或把文件拖到这里</div>
+      <div class="fileinfo" id="fileinfo"></div>
+      <div style="margin-top:14px;">
+        <button class="btn btn-primary" id="uploadBtn" onclick="doUpload()">开始上传</button>
+      </div>
+      <div class="status" id="upStatus"></div>
+      <div class="progress" id="upProgress"><div></div></div>
+    </div>
+
+    <div class="card">
+      <h2>浏览与下载</h2>
+      <div class="hint">每个用户名 = 一个分支，点开看里面的文件，直接下载。</div>
+      <div class="sectabs">
+        <span class="tab act" id="tabBranches" onclick="showBranches()">所有用户</span>
+        <span class="tab" id="tabFiles" onclick="showFiles()">分支文件</span>
+      </div>
+      <div id="browser"></div>
+    </div>
+  </div>
+</div>
+
+<footer>共享网盘 · 基于 GitHub API 构建 · 每个文件都会提交到你仓库的对应分支</footer>
+
+<div class="modal-mask" id="settingsMask">
+  <div class="modal">
+    <h3>GitHub 设置</h3>
+    <div class="row">
+      <label>仓库所有者（你的 GitHub 用户名）</label>
+      <input type="text" id="sOwner" placeholder="cloupi">
+    </div>
+    <div class="row">
+      <label>仓库名</label>
+      <input type="text" id="sRepo" placeholder="cloupi.github.io">
+    </div>
+    <div class="row">
+      <label>GitHub Token（Personal Access Token）</label>
+      <input type="password" id="sToken" placeholder="ghp_... 或 github_pat_...">
+      <div class="small">生成方法：GitHub → Settings → Developer settings → Personal access tokens → Tokens(classic)，勾选 repo 权限。Token 只保存在你自己的浏览器里。</div>
+    </div>
+    <div class="actions">
+      <button class="btn btn-line" onclick="closeSettings(false)">取消</button>
+      <button class="btn btn-primary" onclick="closeSettings(true)">保存</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var KEY = "ghshare_cfg_v1";
+  var cfg = { owner:"", repo:"", token:"" };
+  var pickedFile = null;
+  var branches = [];
+
+  function $(id){ return document.getElementById(id); }
+
+  function loadCfg(){
+    try { var s = localStorage.getItem(KEY); if(s){ cfg = JSON.parse(s); } } catch(e){}
+    if(!cfg) cfg = { owner:"", repo:"", token:"" };
+    if(cfg.owner) $("sOwner").value = cfg.owner;
+    if(cfg.repo) $("sRepo").value = cfg.repo;
+    if(cfg.token) $("sToken").value = cfg.token;
+  }
+  function saveCfg(){
+    try { localStorage.setItem(KEY, JSON.stringify(cfg)); } catch(e){}
+  }
+  function needCfg(){
+    if(!cfg.owner || !cfg.repo || !cfg.token){
+      openSettings();
+      return false;
+    }
+    return true;
+  }
+
+  function api(path, method, body){
+    method = method || "GET";
+    var opts = {
+      method: method,
+      headers: { "Authorization":"Bearer " + cfg.token, "Accept":"application/vnd.github+json" }
+    };
+    if(body !== undefined){ opts.headers["Content-Type"] = "application/json"; opts.body = JSON.stringify(body); }
+    return fetch("https://api.github.com" + path, opts).then(function(res){
+      return res.json().then(function(j){
+        j.__status = res.status;
+        return j;
+      });
+    });
+  }
+
+  function base64FromFile(file, cb){
+    var r = new FileReader();
+    r.onload = function(){
+      var s = r.result; // data:...;base64,xxxx
+      cb(s.slice(s.indexOf(",") + 1));
+    };
+    r.readAsDataURL(file);
+  }
+
+  // ---- 上传 ----
+  function doUpload(){
+    var status = $("upStatus"), prog = $("upProgress");
+    status.className = "status"; status.textContent = "";
+    if(!needCfg()) return;
+    var uname = $("uname").value.trim();
+    if(!uname){ status.className = "status err"; status.textContent = "请先填写用户名。"; return; }
+    if(!pickedFile){ status.className = "status err"; status.textContent = "请先选择要上传的文件。"; return; }
+    if(pickedFile.size > 100*1024*1024){
+      status.className = "status err";
+      status.textContent = "文件超过 100MB，GitHub 单文件上限是 100MB。";
+      return;
+    }
+    var file = pickedFile;
+    var path = encodeURIComponent(file.name);
+    status.className = "status info";
+    status.textContent = "正在准备上传…";
+    prog.style.display = "block";
+    prog.firstElementChild.style.width = "10%";
+    $("uploadBtn").disabled = true;
+
+    function fail(msg){ status.className = "status err"; status.textContent = msg; prog.style.display = "none"; $("uploadBtn").disabled = false; }
+
+    // 1. 检查分支是否存在
+    api("/repos/" + cfg.owner + "/" + cfg.repo + "/branches/" + encodeURIComponent(uname))
+      .then(function(r){
+        if(r.__status === 200){
+          return Promise.resolve({ exists:true, sha:null });
+        }
+        if(r.__status === 404){
+          // 分支不存在：获取默认分支最新 commit 作为新分支起点
+          return api("/repos/" + cfg.owner + "/" + cfg.repo).then(function(repo){
+            if(repo.__status !== 200) throw new Error("读取仓库失败：" + (repo.message || repo.__status));
+            var def = repo.default_branch;
+            return api("/repos/" + cfg.owner + "/" + cfg.repo + "/git/ref/heads/" + def).then(function(ref){
+              if(ref.__status !== 200) throw new Error("读取默认分支失败：" + (ref.message || ref.__status));
+              return api("/repos/" + cfg.owner + "/" + cfg.repo + "/git/refs", "POST", {
+                ref: "refs/heads/" + uname,
+                sha: ref.object.sha
+              }).then(function(created){
+                if(created.__status !== 201) throw new Error("创建分支失败：" + (created.message || created.__status));
+                return { exists:true, sha:null };
+              });
+            });
+          });
+        }
+        throw new Error("检查分支失败：" + (r.message || r.__status));
+      })
+      .then(function(){
+        status.textContent = "分支已就绪，正在编码文件…";
+        prog.firstElementChild.style.width = "30%";
+        return new Promise(function(res){
+          base64FromFile(file, res);
+        });
+      })
+      .then(function(b64){
+        status.textContent = "正在提交文件到分支 " + uname + " …";
+        prog.firstElementChild.style.width = "60%";
+        return api("/repos/" + cfg.owner + "/" + cfg.repo + "/contents/" + path, "PUT", {
+          message: "upload " + file.name + " by " + uname,
+          content: b64,
+          branch: uname
+        });
+      })
+      .then(function(res){
+        if(res.__status !== 201 && res.__status !== 200){
+          throw new Error("上传失败：" + (res.message || res.__status));
+        }
+        prog.firstElementChild.style.width = "100%";
+        status.className = "status ok";
+        status.textContent = "上传成功！文件已保存到分支「" + uname + "」，所有人都能在这里下载。";
+        setTimeout(function(){ prog.style.display = "none"; prog.firstElementChild.style.width = "0"; }, 1200);
+        $("uploadBtn").disabled = false;
+        pickedFile = null; $("fileinfo").textContent = "";
+        refreshBranches();
+      })
+      .catch(function(e){
+        fail("出错了：" + e.message);
+      });
+  }
+
+  // ---- 浏览 ----
+  function refreshBranches(){
+    if(!cfg.owner || !cfg.repo) return;
+    var box = $("browser");
+    box.innerHTML = '<div class="empty">正在读取用户列表…</div>';
+    api("/repos/" + cfg.owner + "/" + cfg.repo + "/branches?per_page=100")
+      .then(function(res){
+        if(res.__status !== 200){ box.innerHTML = '<div class="empty">读取失败：' + (res.message || res.__status) + '</div>'; return; }
+        branches = res;
+        showBranches();
+      })
+      .catch(function(e){ box.innerHTML = '<div class="empty">读取失败：' + e.message + '</div>'; });
+  }
+
+  function showBranches(){
+    $("tabBranches").className = "tab act";
+    $("tabFiles").className = "tab";
+    var box = $("browser");
+    if(!branches.length){ box.innerHTML = '<div class="empty">还没有人上传过文件，快来当第一个吧！</div>'; return; }
+    var html = "";
+    branches.forEach(function(b){
+      html += '<div class="branch" onclick="openBranch(\'' + b.name.replace(/\\/g,"\\\\").replace(/'/g,"\\'") + '\')">'
+            + '<span class="who">' + b.name + '</span>'
+            + '<span class="files">点开查看文件</span></div>';
+    });
+    box.innerHTML = html;
+  }
+
+  function openBranch(bname){
+    $("tabBranches").className = "tab";
+    $("tabFiles").className = "tab act";
+    var box = $("browser");
+    box.innerHTML = '<div class="empty">正在读取 ' + bname + ' 的文件…</div>';
+    api("/repos/" + cfg.owner + "/" + cfg.repo + "/git/trees/" + encodeURIComponent(bname) + "?recursive=1")
+      .then(function(res){
+        if(res.__status !== 200){ box.innerHTML = '<div class="empty">读取失败：' + (res.message || res.__status) + '</div>'; return; }
+        var files = (res.tree || []).filter(function(t){ return t.type === "blob"; });
+        if(!files.length){
+          box.innerHTML = '<div class="empty">这个分支还没有文件。<br><span style="font-size:12px"><a href="javascript:showBranches()" style="color:#3b7cff">← 返回用户列表</a></span></div>';
+          return;
+        }
+        var html = '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">'
+                 + '<strong style="font-size:14px">' + bname + ' 的文件（' + files.length + ' 个）</strong>'
+                 + '<a href="javascript:showBranches()" style="color:#3b7cff;font-size:13px;text-decoration:none">← 返回用户列表</a></div>';
+        files.forEach(function(f){
+          var dl = "https://raw.githubusercontent.com/" + cfg.owner + "/" + cfg.repo + "/" + encodeURIComponent(bname) + "/" + f.path.split("/").map(encodeURIComponent).join("/");
+          html += '<div class="fileitem"><span class="name">' + f.path + '</span>'
+                + '<a href="' + dl + '" target="_blank" rel="noopener">下载</a></div>';
+        });
+        box.innerHTML = html;
+      })
+      .catch(function(e){ box.innerHTML = '<div class="empty">读取失败：' + e.message + '</div>'; });
+  }
+
+  function showFiles(){
+    if(!branches.length){ showBranches(); return; }
+    showBranches();
+  }
+
+  // ---- 设置 ----
+  function openSettings(){ $("settingsMask").style.display = "flex"; }
+  function closeSettings(save){
+    if(save){
+      cfg.owner = $("sOwner").value.trim();
+      cfg.repo = $("sRepo").value.trim();
+      cfg.token = $("sToken").value.trim();
+      saveCfg();
+      refreshBranches();
+    }
+    $("settingsMask").style.display = "none";
+  }
+
+  // ---- 文件选择 ----
+  function setupDrop(){
+    var drop = $("drop");
+    drop.addEventListener("click", function(){ $("fileInput").click(); });
+    ["dragenter","dragover"].forEach(function(ev){
+      drop.addEventListener(ev, function(e){ e.preventDefault(); drop.classList.add("on"); });
+    });
+    ["dragleave","drop"].forEach(function(ev){
+      drop.addEventListener(ev, function(e){ e.preventDefault(); drop.classList.remove("on"); });
+    });
+    drop.addEventListener("drop", function(e){
+      var f = e.dataTransfer.files && e.dataTransfer.files[0];
+      if(f){ pickedFile = f; $("fileinfo").textContent = "已选择：" + f.name + "（" + fmtSize(f.size) + "）"; }
+    });
+    var fi = document.createElement("input");
+    fi.type = "file"; fi.id = "fileInput"; fi.style.display = "none";
+    fi.addEventListener("change", function(){
+      if(fi.files && fi.files[0]){ pickedFile = fi.files[0]; $("fileinfo").textContent = "已选择：" + pickedFile.name + "（" + fmtSize(pickedFile.size) + "）"; }
+    });
+    document.body.appendChild(fi);
+  }
+  function fmtSize(n){
+    if(n < 1024) return n + " B";
+    if(n < 1024*1024) return (n/1024).toFixed(1) + " KB";
+    return (n/1024/1024).toFixed(1) + " MB";
+  }
+
+  window.openSettings = openSettings;
+  window.closeSettings = closeSettings;
+  window.doUpload = doUpload;
+  window.showBranches = showBranches;
+  window.showFiles = showFiles;
+  window.openBranch = openBranch;
+
+  loadCfg();
+  setupDrop();
+  if(cfg.owner && cfg.repo) refreshBranches();
+})();
+</script>
+</body>
+</html>
