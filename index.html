@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>共享网盘 · GitHub 版</title>
+<title>共享网盘 · GitHub 版 | Shared Drive</title>
 <style>
   * { margin:0; padding:0; box-sizing:border-box; }
   body {
@@ -26,9 +26,15 @@
   .btn-primary { background:#3b7cff; color:#fff; }
   .btn-ghost { background:rgba(255,255,255,.16); color:#fff; }
   .btn-line { background:#fff; color:#3b7cff; border:1px solid #cfe0ff; }
+  .btn-danger { background:#fff; color:#d64545; border:1px solid #f0c4c4; }
+  .btn-lang { background:#fff; color:#2f5fd8; border:none; border-radius:999px; padding:8px 16px; font-size:13px; font-weight:600; }
   .wrap { max-width:1100px; margin:24px auto; padding:0 16px; }
   .notice {
     background:#fff7e8; border:1px solid #f2c94c; color:#8a6100;
+    border-radius:12px; padding:12px 16px; font-size:13px; line-height:1.7; margin-bottom:20px;
+  }
+  .warn {
+    background:#fdecec; border:1px solid #e5a3a3; color:#a33;
     border-radius:12px; padding:12px 16px; font-size:13px; line-height:1.7; margin-bottom:20px;
   }
   .grid { display:grid; grid-template-columns:1fr 1fr; gap:20px; }
@@ -67,7 +73,6 @@
   .branch:hover { border-color:#3b7cff; }
   .branch .who { font-weight:600; color:#2c3e50; }
   .branch .files { font-size:12px; color:#7a8aa0; }
-  .filelist { margin-top:10px; }
   .fileitem {
     display:flex; align-items:center; justify-content:space-between; gap:8px;
     padding:9px 12px; border-bottom:1px solid #f0f5fd; font-size:13px;
@@ -87,6 +92,12 @@
   .modal .actions { display:flex; gap:10px; justify-content:flex-end; margin-top:16px; }
   .small { font-size:12px; color:#8a94a6; line-height:1.6; }
   .empty { text-align:center; color:#a0aec2; font-size:13px; padding:26px 0; }
+  .accountbar {
+    display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;
+    background:#fff; border-radius:16px; padding:16px 20px; box-shadow:0 2px 12px rgba(30,60,120,.06);
+    margin-bottom:20px;
+  }
+  .accountbar .who { font-size:15px; color:#2c3e50; font-weight:600; }
   footer { text-align:center; color:#a0aec2; font-size:12px; padding:24px 0 32px; }
 </style>
 </head>
@@ -94,67 +105,94 @@
 
 <header>
   <div>
-    <h1>共享网盘 · GitHub 版</h1>
-    <div class="sub">所有人可上传、可下载 · 每个用户一个分支空间</div>
+    <h1 id="appTitle">共享网盘 · GitHub 版</h1>
+    <div class="sub" id="appSub">账号登录 · 每人一个分支空间 · 所有人可上传下载</div>
   </div>
-  <button class="btn btn-ghost" onclick="openSettings()">设置</button>
+  <div style="display:flex;gap:10px;">
+    <button class="btn btn-lang" id="langBtn" onclick="toggleLang()">EN</button>
+    <button class="btn btn-ghost" onclick="openSettings()" data-i18n="btn_settings">设置</button>
+  </div>
 </header>
 
 <div class="wrap">
-  <div class="notice">
-    <strong>使用前先点右上角「设置」填入你的 GitHub 信息。</strong>
-    <br>安全提醒：Token 是你的 GitHub 密钥，任何人拿到它都能改动你的仓库。这个网页如果部署成公开网站，<strong>不要把密钥填在公共电脑上</strong>，建议仅自己使用。单文件最大 100MB，可传任意类型文件。
+  <div class="warn" id="topWarn"></div>
+  <div class="notice" id="notice"></div>
+
+  <!-- 账号区 -->
+  <div class="accountbar" id="accountBar" style="display:none;">
+    <div class="who" id="accountWho"></div>
+    <button class="btn btn-danger" id="logoutBtn" onclick="logout()" data-i18n="btn_logout">退出</button>
   </div>
 
-  <div class="grid">
+  <!-- 登录 / 注册 -->
+  <div class="card" id="authCard">
+    <div class="sectabs">
+      <span class="tab act" id="tabLogin" onclick="switchAuth('login')" data-i18n="tab_login">登录</span>
+      <span class="tab" id="tabReg" onclick="switchAuth('reg')" data-i18n="tab_register">注册</span>
+    </div>
+    <div class="row">
+      <label data-i18n="lbl_uname2">用户名</label>
+      <input type="text" id="authUname" placeholder="xiaoming">
+    </div>
+    <div class="row">
+      <label data-i18n="lbl_password">密码</label>
+      <input type="password" id="authPass" placeholder="******">
+    </div>
+    <div style="margin-top:14px;">
+      <button class="btn btn-primary" id="authBtn" onclick="doAuth()" data-i18n="btn_login">登录</button>
+    </div>
+    <div class="status" id="authStatus"></div>
+    <div class="small" id="authHelp" style="margin-top:8px;"></div>
+  </div>
+
+  <!-- 主界面 -->
+  <div class="grid" id="mainGrid" style="display:none;">
     <div class="card">
-      <h2>上传文件</h2>
-      <div class="hint">输入用户名 → 选文件 → 上传。文件会存进「以用户名命名的分支」。</div>
-      <label>你的用户名（用来建分支）</label>
-      <input type="text" id="uname" placeholder="例如：xiaoming">
-      <label>选择文件</label>
-      <div class="drop" id="drop">点击选择文件，或把文件拖到这里</div>
+      <h2 data-i18n="up_title">上传文件</h2>
+      <div class="hint" id="upHint"></div>
+      <label data-i18n="lbl_file">选择文件</label>
+      <div class="drop" id="drop" data-i18n="drop_text">点击选择文件，或把文件拖到这里</div>
       <div class="fileinfo" id="fileinfo"></div>
       <div style="margin-top:14px;">
-        <button class="btn btn-primary" id="uploadBtn" onclick="doUpload()">开始上传</button>
+        <button class="btn btn-primary" id="uploadBtn" onclick="doUpload()" data-i18n="btn_upload">开始上传</button>
       </div>
       <div class="status" id="upStatus"></div>
       <div class="progress" id="upProgress"><div></div></div>
     </div>
 
     <div class="card">
-      <h2>浏览与下载</h2>
-      <div class="hint">每个用户名 = 一个分支，点开看里面的文件，直接下载。</div>
+      <h2 data-i18n="browse_title">浏览与下载</h2>
+      <div class="hint" data-i18n="browse_hint">每个用户一个分支，点开看文件，直接下载。</div>
       <div class="sectabs">
-        <span class="tab act" id="tabBranches" onclick="showBranches()">所有用户</span>
-        <span class="tab" id="tabFiles" onclick="showFiles()">分支文件</span>
+        <span class="tab act" id="tabBranches" onclick="showBranches()" data-i18n="tab_users">所有用户</span>
+        <span class="tab" id="tabFiles" onclick="showFiles()" data-i18n="tab_files">分支文件</span>
       </div>
       <div id="browser"></div>
     </div>
   </div>
 </div>
 
-<footer>共享网盘 · 基于 GitHub API 构建 · 每个文件都会提交到你仓库的对应分支</footer>
+<footer id="footerText"></footer>
 
 <div class="modal-mask" id="settingsMask">
   <div class="modal">
-    <h3>GitHub 设置</h3>
+    <h3 data-i18n="settings_title">站长配置（GitHub）</h3>
     <div class="row">
-      <label>仓库所有者（你的 GitHub 用户名）</label>
+      <label data-i18n="lbl_owner">仓库所有者（你的 GitHub 用户名）</label>
       <input type="text" id="sOwner" placeholder="cloupi">
     </div>
     <div class="row">
-      <label>仓库名</label>
+      <label data-i18n="lbl_repo">仓库名</label>
       <input type="text" id="sRepo" placeholder="cloupi.github.io">
     </div>
     <div class="row">
-      <label>GitHub Token（Personal Access Token）</label>
-      <input type="password" id="sToken" placeholder="ghp_... 或 github_pat_...">
-      <div class="small">生成方法：GitHub → Settings → Developer settings → Personal access tokens → Tokens(classic)，勾选 repo 权限。Token 只保存在你自己的浏览器里。</div>
+      <label data-i18n="lbl_token">GitHub Token（站长密钥）</label>
+      <input type="password" id="sToken" placeholder="ghp_... or github_pat_...">
+      <div class="small" id="tokenHelp"></div>
     </div>
     <div class="actions">
-      <button class="btn btn-line" onclick="closeSettings(false)">取消</button>
-      <button class="btn btn-primary" onclick="closeSettings(true)">保存</button>
+      <button class="btn btn-line" onclick="closeSettings(false)" data-i18n="btn_cancel">取消</button>
+      <button class="btn btn-primary" onclick="closeSettings(true)" data-i18n="btn_save">保存</button>
     </div>
   </div>
 </div>
@@ -162,30 +200,141 @@
 <script>
 (function(){
   "use strict";
-  var KEY = "ghshare_cfg_v1";
+  var KEY = "ghshare_cfg_v2";
+  var LANG_KEY = "ghshare_lang_v1";
+  // 站长可把配置直接写在这里并部署，这样访客打开网页就已配置好
+  var CONFIG_DEFAULT = { owner:"", repo:"", token:"" };
   var cfg = { owner:"", repo:"", token:"" };
   var pickedFile = null;
   var branches = [];
+  var lang = "zh";
+  var curUser = null;
+  var authMode = "login";
+
+  var I18N = {
+    zh: {
+      app_title:"共享网盘 · GitHub 版", app_sub:"账号登录 · 每人一个分支空间 · 所有人可上传下载",
+      btn_settings:"设置", btn_lang:"EN",
+      top_warn:"<strong>重要安全提醒：</strong>站长 Token 保存在这个网页里，公开部署后懂技术的人看网页源码就能拿到它。此方案仅适合你和信任的朋友使用；要做成面向全世界的公开网站，请使用 Cloudreve 方案（路线二）。",
+      notice:"<strong>每个人注册一个账号</strong>，登录后上传的文件会存进<strong>以你用户名命名的分支</strong>，所有人都能浏览下载。单文件最大 100MB，可传任意类型文件。",
+      up_title:"上传文件", up_hint:"登录账号：{u}。你的文件会存进分支「{u}」。",
+      lbl_uname:"你的用户名", lbl_uname2:"用户名", lbl_password:"密码",
+      lbl_file:"选择文件", drop_text:"点击选择文件，或把文件拖到这里",
+      btn_upload:"开始上传", btn_login:"登录", btn_register:"注册账号", btn_logout:"退出",
+      tab_login:"登录", tab_register:"注册",
+      auth_help_login:"没有账号？点上面的「注册」，用邮箱或昵称注册一个。",
+      auth_help_reg:"注册后会自动登录，你的文件空间以用户名为名。",
+      browse_title:"浏览与下载", browse_hint:"每个用户一个分支，点开看文件，直接下载。",
+      tab_users:"所有用户", tab_files:"分支文件",
+      footer:"共享网盘 · 基于 GitHub API 构建 · 账号密码哈希存储在仓库 _accounts 目录",
+      settings_title:"站长配置（GitHub）", lbl_owner:"仓库所有者（你的 GitHub 用户名）", lbl_repo:"仓库名",
+      lbl_token:"GitHub Token（站长密钥）",
+      token_help:"生成方法：GitHub → Settings → Developer settings → Personal access tokens → Tokens (classic)，勾选 repo 权限。Token 保存在浏览器；要部署给所有人用，请把 Token 直接写进网页源码顶部的 CONFIG_DEFAULT。",
+      btn_cancel:"取消", btn_save:"保存",
+      msg_need_uname_pw:"请填写用户名和密码（用户名只能包含字母、数字、- 和 _，最长 20 位）。",
+      msg_bad_uname:"用户名只能包含字母、数字、- 和 _，最长 20 位。",
+      msg_user_exists:"这个用户名已经被注册了，换一个吧。",
+      msg_reg_ok:"注册成功，已自动登录！", msg_login_fail:"用户名或密码错误。", msg_login_ok:"登录成功！",
+      msg_reg_check:"正在检查用户名…", msg_reg_create:"正在创建账号…",
+      msg_need_file:"请先选择要上传的文件。",
+      msg_too_big:"文件超过 100MB，GitHub 单文件上限是 100MB。",
+      msg_preparing:"正在准备上传…", msg_branch_ready:"分支已就绪，正在编码文件…",
+      msg_committing:"正在提交文件到分支 {u} …",
+      msg_upload_ok:"上传成功！文件已保存到分支「{u}」，所有人都能在这里下载。",
+      msg_err:"出错了：", msg_repo_fail:"读取仓库失败：", msg_branch_fail:"读取默认分支失败：",
+      msg_create_branch_fail:"创建分支失败：", msg_check_branch_fail:"检查分支失败：", msg_upload_fail:"上传失败：",
+      msg_loading_users:"正在读取用户列表…", msg_read_fail:"读取失败：",
+      msg_no_users:"还没有人上传过文件，快来当第一个吧！",
+      msg_open:"点开查看文件", msg_loading_files:"正在读取 {b} 的文件…",
+      msg_no_files:"这个分支还没有文件。", back:"← 返回用户列表",
+      files_count:"{b} 的文件（{n} 个）", download:"下载",
+      file_selected:"已选择：", welcome:"当前用户：",
+      msg_need_config:"请先点右上角「设置」完成站长配置，再注册使用。"
+    },
+    en: {
+      app_title:"Shared Drive · GitHub Edition", app_sub:"Account login · One branch per user · Everyone can upload & download",
+      btn_settings:"Settings", btn_lang:"中",
+      top_warn:"<strong>Security warning:</strong> The owner Token lives inside this web page. Once deployed publicly, anyone who reads the page source can extract it. Use this only for yourself and trusted friends; for a fully public site, use the Cloudreve route (Route 2).",
+      notice:"<strong>Everyone creates their own account.</strong> Files you upload go into a <strong>branch named after your username</strong>, and everyone can browse and download. Max file size: 100MB. Any file type works.",
+      up_title:"Upload Files", up_hint:"Logged in as: {u}. Your files go into branch \"{u}\".",
+      lbl_uname:"Your username", lbl_uname2:"Username", lbl_password:"Password",
+      lbl_file:"Choose a file", drop_text:"Click to choose a file, or drag one here",
+      btn_upload:"Upload Now", btn_login:"Log In", btn_register:"Create Account", btn_logout:"Log Out",
+      tab_login:"Login", tab_register:"Sign Up",
+      auth_help_login:"No account? Click \"Sign Up\" above to create one with an email-like name.",
+      auth_help_reg:"You'll be logged in automatically. Your file space is named after your username.",
+      browse_title:"Browse & Download", browse_hint:"Each user is a branch. Open one to see and download files.",
+      tab_users:"All Users", tab_files:"Branch Files",
+      footer:"Shared Drive · Built on GitHub API · Account hashes stored in the _accounts folder",
+      settings_title:"Owner Setup (GitHub)", lbl_owner:"Repository owner (your GitHub username)", lbl_repo:"Repository name",
+      lbl_token:"GitHub Token (owner key)",
+      token_help:"How to create: GitHub → Settings → Developer settings → Personal access tokens → Tokens (classic), check the \"repo\" scope. The Token is stored in your browser; to deploy for everyone, paste it into CONFIG_DEFAULT at the top of this file.",
+      btn_cancel:"Cancel", btn_save:"Save",
+      msg_need_uname_pw:"Please enter a username and password (letters, numbers, - and _ only, max 20 chars).",
+      msg_bad_uname:"Username: letters, numbers, - and _ only, max 20 chars.",
+      msg_user_exists:"This username is already taken. Try another.",
+      msg_reg_ok:"Registered and logged in!", msg_login_fail:"Wrong username or password.", msg_login_ok:"Logged in!",
+      msg_reg_check:"Checking username…", msg_reg_create:"Creating account…",
+      msg_need_file:"Please choose a file first.",
+      msg_too_big:"File is over 100MB. GitHub's per-file limit is 100MB.",
+      msg_preparing:"Preparing upload…", msg_branch_ready:"Branch ready, encoding file…",
+      msg_committing:"Committing file to branch {u}…",
+      msg_upload_ok:"Uploaded! Saved to branch \"{u}\". Everyone can download it here.",
+      msg_err:"Error: ", msg_repo_fail:"Failed to read repo: ", msg_branch_fail:"Failed to read default branch: ",
+      msg_create_branch_fail:"Failed to create branch: ", msg_check_branch_fail:"Failed to check branch: ", msg_upload_fail:"Upload failed: ",
+      msg_loading_users:"Loading user list…", msg_read_fail:"Load failed: ",
+      msg_no_users:"No files yet. Be the first to upload!",
+      msg_open:"Click to view files", msg_loading_files:"Loading files of {b}…",
+      msg_no_files:"This branch has no files yet.", back:"← Back to user list",
+      files_count:"{b}'s files ({n})", download:"Download",
+      file_selected:"Selected: ", welcome:"Current user: ",
+      msg_need_config:"Please complete the owner setup via \"Settings\" (top right) first."
+    }
+  };
 
   function $(id){ return document.getElementById(id); }
+  function t(key, vars){
+    var s = (I18N[lang] && I18N[lang][key]) || (I18N.zh[key]) || key;
+    if(vars){ Object.keys(vars).forEach(function(k){ s = s.replace("{" + k + "}", vars[k]); }); }
+    return s;
+  }
+
+  function loadLang(){
+    try { var s = localStorage.getItem(LANG_KEY); if(s === "en" || s === "zh") lang = s; } catch(e){}
+    applyLang();
+  }
+  function toggleLang(){
+    lang = (lang === "zh") ? "en" : "zh";
+    try { localStorage.setItem(LANG_KEY, lang); } catch(e){}
+    applyLang();
+  }
+  function applyLang(){
+    document.documentElement.lang = lang;
+    $("langBtn").textContent = t("btn_lang");
+    var els = document.querySelectorAll("[data-i18n]");
+    for(var i=0;i<els.length;i++){ els[i].textContent = t(els[i].getAttribute("data-i18n")); }
+    $("appTitle").textContent = t("app_title");
+    $("appSub").textContent = t("app_sub");
+    $("topWarn").innerHTML = t("top_warn");
+    $("notice").innerHTML = t("notice");
+    $("footerText").textContent = t("footer");
+    $("tokenHelp").textContent = t("token_help");
+    $("authHelp").textContent = authMode === "login" ? t("auth_help_login") : t("auth_help_reg");
+    renderView();
+  }
 
   function loadCfg(){
-    try { var s = localStorage.getItem(KEY); if(s){ cfg = JSON.parse(s); } } catch(e){}
-    if(!cfg) cfg = { owner:"", repo:"", token:"" };
-    if(cfg.owner) $("sOwner").value = cfg.owner;
-    if(cfg.repo) $("sRepo").value = cfg.repo;
-    if(cfg.token) $("sToken").value = cfg.token;
+    var saved = null;
+    try { var s = localStorage.getItem(KEY); if(s) saved = JSON.parse(s); } catch(e){}
+    cfg = (saved && saved.owner) ? saved : { owner: CONFIG_DEFAULT.owner, repo: CONFIG_DEFAULT.repo, token: CONFIG_DEFAULT.token };
+    $("sOwner").value = cfg.owner;
+    $("sRepo").value = cfg.repo;
+    $("sToken").value = cfg.token;
   }
   function saveCfg(){
     try { localStorage.setItem(KEY, JSON.stringify(cfg)); } catch(e){}
   }
-  function needCfg(){
-    if(!cfg.owner || !cfg.repo || !cfg.token){
-      openSettings();
-      return false;
-    }
-    return true;
-  }
+  function hasCfg(){ return !!(cfg.owner && cfg.repo && cfg.token); }
 
   function api(path, method, body){
     method = method || "GET";
@@ -202,72 +351,197 @@
     });
   }
 
+  // ---- 密码哈希 ----
+  function randomSalt(){
+    var chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    var s = "";
+    for(var i=0;i<8;i++){ s += chars.charAt(Math.floor(Math.random()*chars.length)); }
+    return s;
+  }
+  function sha256Hex(str){
+    if(window.crypto && crypto.subtle && crypto.subtle.digest){
+      return crypto.subtle.digest("SHA-256", new TextEncoder().encode(str)).then(function(buf){
+        var arr = new Uint8Array(buf);
+        var hex = "";
+        for(var i=0;i<arr.length;i++){ hex += ("0" + arr[i].toString(16)).slice(-2); }
+        return hex;
+      });
+    }
+    return Promise.resolve(cyrb53(str).toString(16));
+  }
+  function cyrb53(str, seed){
+    var h1 = 0xdeadbeef ^ seed, h2 = 0x41c6ce57 ^ seed;
+    for(var i=0, ch; i<str.length; i++){
+      ch = str.charCodeAt(i);
+      h1 = Math.imul(h1 ^ ch, 2654435761);
+      h2 = Math.imul(h2 ^ ch, 1597334677);
+    }
+    h1 = Math.imul(h1 ^ (h1>>>16), 2246822507) ^ Math.imul(h2 ^ (h2>>>13), 3266489909);
+    h2 = Math.imul(h2 ^ (h2>>>16), 2246822507) ^ Math.imul(h1 ^ (h1>>>13), 3266489909);
+    return 4294967296 * (2097151 & h2) + (h1>>>0);
+  }
+
+  function validUname(u){ return /^[A-Za-z0-9_-]{1,20}$/.test(u); }
+
+  function accountPath(u){ return "_accounts/" + encodeURIComponent(u) + ".json"; }
+
+  // ---- 注册 / 登录 ----
+  function switchAuth(mode){
+    authMode = mode;
+    $("tabLogin").className = "tab" + (mode === "login" ? " act" : "");
+    $("tabReg").className = "tab" + (mode === "reg" ? " act" : "");
+    $("authBtn").textContent = t(mode === "login" ? "btn_login" : "btn_register");
+    $("authHelp").textContent = t(mode === "login" ? "auth_help_login" : "auth_help_reg");
+    $("authStatus").className = "status"; $("authStatus").textContent = "";
+  }
+
+  function doAuth(){
+    var status = $("authStatus");
+    status.className = "status"; status.textContent = "";
+    if(!hasCfg()){ status.className = "status err"; status.textContent = t("msg_need_config"); openSettings(); return; }
+    var u = $("authUname").value.trim();
+    var p = $("authPass").value;
+    if(!u || !p || !validUname(u)){ status.className = "status err"; status.textContent = t("msg_need_uname_pw"); return; }
+    if(authMode === "login"){ login(u, p, status); }
+    else { register(u, p, status); }
+  }
+
+  function register(u, p, status){
+    status.className = "status info"; status.textContent = t("msg_reg_check");
+    api("/repos/" + cfg.owner + "/" + cfg.repo + "/contents/" + accountPath(u))
+      .then(function(r){
+        if(r.__status === 200){ throw new Error(t("msg_user_exists")); }
+        if(r.__status !== 404){ throw new Error(t("msg_read_fail") + (r.message || r.__status)); }
+        status.textContent = t("msg_reg_create");
+        var salt = randomSalt();
+        return sha256Hex(p + ":" + salt).then(function(hash){
+          return api("/repos/" + cfg.owner + "/" + cfg.repo + "/contents/" + accountPath(u), "PUT", {
+            message: "register " + u,
+            content: btoa(unescape(encodeURIComponent(JSON.stringify({ salt: salt, hash: hash }))))
+          });
+        });
+      })
+      .then(function(res){
+        if(res.__status !== 201 && res.__status !== 200){ throw new Error(t("msg_upload_fail") + (res.message || res.__status)); }
+        status.className = "status ok"; status.textContent = t("msg_reg_ok");
+        setUser(u);
+      })
+      .catch(function(e){
+        status.className = "status err"; status.textContent = t("msg_err") + e.message;
+      });
+  }
+
+  function login(u, p, status){
+    status.className = "status info"; status.textContent = t("msg_reg_check");
+    api("/repos/" + cfg.owner + "/" + cfg.repo + "/contents/" + accountPath(u))
+      .then(function(r){
+        if(r.__status !== 200){ throw new Error(t("msg_login_fail")); }
+        var content = "";
+        try {
+          content = decodeURIComponent(escape(atob(r.content)));
+        } catch(e2){
+          try { content = atob(r.content); } catch(e3){ content = ""; }
+        }
+        var data = JSON.parse(content);
+        return sha256Hex(p + ":" + data.salt).then(function(hash){
+          if(hash !== data.hash) throw new Error(t("msg_login_fail"));
+          status.className = "status ok"; status.textContent = t("msg_login_ok");
+          setUser(u);
+        });
+      })
+      .catch(function(e){
+        status.className = "status err"; status.textContent = t("msg_err") + e.message;
+      });
+  }
+
+  function setUser(u){
+    curUser = u;
+    try { sessionStorage.setItem("ghshare_user", u); } catch(e){}
+    renderView();
+    refreshBranches();
+  }
+  function logout(){
+    curUser = null;
+    try { sessionStorage.removeItem("ghshare_user"); } catch(e){}
+    renderView();
+  }
+
+  // ---- 视图 ----
+  function renderView(){
+    var logged = !!curUser && hasCfg();
+    $("authCard").style.display = logged ? "none" : "block";
+    $("mainGrid").style.display = logged ? "grid" : "none";
+    $("accountBar").style.display = logged ? "flex" : "none";
+    if(logged){
+      $("accountWho").textContent = t("welcome") + curUser;
+      $("upHint").textContent = t("up_hint", { u: curUser });
+      $("authPass").value = "";
+      $("authUname").value = "";
+    }
+  }
+
   function base64FromFile(file, cb){
     var r = new FileReader();
     r.onload = function(){
-      var s = r.result; // data:...;base64,xxxx
+      var s = r.result;
       cb(s.slice(s.indexOf(",") + 1));
     };
     r.readAsDataURL(file);
   }
 
-  // ---- 上传 ----
   function doUpload(){
     var status = $("upStatus"), prog = $("upProgress");
     status.className = "status"; status.textContent = "";
-    if(!needCfg()) return;
-    var uname = $("uname").value.trim();
-    if(!uname){ status.className = "status err"; status.textContent = "请先填写用户名。"; return; }
-    if(!pickedFile){ status.className = "status err"; status.textContent = "请先选择要上传的文件。"; return; }
+    if(!curUser){ status.className = "status err"; status.textContent = t("msg_need_config"); return; }
+    if(!pickedFile){ status.className = "status err"; status.textContent = t("msg_need_file"); return; }
     if(pickedFile.size > 100*1024*1024){
       status.className = "status err";
-      status.textContent = "文件超过 100MB，GitHub 单文件上限是 100MB。";
+      status.textContent = t("msg_too_big");
       return;
     }
+    var uname = curUser;
     var file = pickedFile;
     var path = encodeURIComponent(file.name);
     status.className = "status info";
-    status.textContent = "正在准备上传…";
+    status.textContent = t("msg_preparing");
     prog.style.display = "block";
     prog.firstElementChild.style.width = "10%";
     $("uploadBtn").disabled = true;
 
-    function fail(msg){ status.className = "status err"; status.textContent = msg; prog.style.display = "none"; $("uploadBtn").disabled = false; }
+    function fail(msg){ status.className = "status err"; status.textContent = t("msg_err") + msg; prog.style.display = "none"; $("uploadBtn").disabled = false; }
 
-    // 1. 检查分支是否存在
     api("/repos/" + cfg.owner + "/" + cfg.repo + "/branches/" + encodeURIComponent(uname))
       .then(function(r){
         if(r.__status === 200){
           return Promise.resolve({ exists:true, sha:null });
         }
         if(r.__status === 404){
-          // 分支不存在：获取默认分支最新 commit 作为新分支起点
           return api("/repos/" + cfg.owner + "/" + cfg.repo).then(function(repo){
-            if(repo.__status !== 200) throw new Error("读取仓库失败：" + (repo.message || repo.__status));
+            if(repo.__status !== 200) throw new Error(t("msg_repo_fail") + (repo.message || repo.__status));
             var def = repo.default_branch;
             return api("/repos/" + cfg.owner + "/" + cfg.repo + "/git/ref/heads/" + def).then(function(ref){
-              if(ref.__status !== 200) throw new Error("读取默认分支失败：" + (ref.message || ref.__status));
+              if(ref.__status !== 200) throw new Error(t("msg_branch_fail") + (ref.message || ref.__status));
               return api("/repos/" + cfg.owner + "/" + cfg.repo + "/git/refs", "POST", {
                 ref: "refs/heads/" + uname,
                 sha: ref.object.sha
               }).then(function(created){
-                if(created.__status !== 201) throw new Error("创建分支失败：" + (created.message || created.__status));
+                if(created.__status !== 201) throw new Error(t("msg_create_branch_fail") + (created.message || created.__status));
                 return { exists:true, sha:null };
               });
             });
           });
         }
-        throw new Error("检查分支失败：" + (r.message || r.__status));
+        throw new Error(t("msg_check_branch_fail") + (r.message || r.__status));
       })
       .then(function(){
-        status.textContent = "分支已就绪，正在编码文件…";
+        status.textContent = t("msg_branch_ready");
         prog.firstElementChild.style.width = "30%";
         return new Promise(function(res){
           base64FromFile(file, res);
         });
       })
       .then(function(b64){
-        status.textContent = "正在提交文件到分支 " + uname + " …";
+        status.textContent = t("msg_committing", { u: uname });
         prog.firstElementChild.style.width = "60%";
         return api("/repos/" + cfg.owner + "/" + cfg.repo + "/contents/" + path, "PUT", {
           message: "upload " + file.name + " by " + uname,
@@ -277,45 +551,44 @@
       })
       .then(function(res){
         if(res.__status !== 201 && res.__status !== 200){
-          throw new Error("上传失败：" + (res.message || res.__status));
+          throw new Error(t("msg_upload_fail") + (res.message || res.__status));
         }
         prog.firstElementChild.style.width = "100%";
         status.className = "status ok";
-        status.textContent = "上传成功！文件已保存到分支「" + uname + "」，所有人都能在这里下载。";
+        status.textContent = t("msg_upload_ok", { u: uname });
         setTimeout(function(){ prog.style.display = "none"; prog.firstElementChild.style.width = "0"; }, 1200);
         $("uploadBtn").disabled = false;
         pickedFile = null; $("fileinfo").textContent = "";
         refreshBranches();
       })
       .catch(function(e){
-        fail("出错了：" + e.message);
+        fail(e.message);
       });
   }
 
-  // ---- 浏览 ----
   function refreshBranches(){
-    if(!cfg.owner || !cfg.repo) return;
+    if(!hasCfg()) return;
     var box = $("browser");
-    box.innerHTML = '<div class="empty">正在读取用户列表…</div>';
+    box.innerHTML = '<div class="empty">' + t("msg_loading_users") + '</div>';
     api("/repos/" + cfg.owner + "/" + cfg.repo + "/branches?per_page=100")
       .then(function(res){
-        if(res.__status !== 200){ box.innerHTML = '<div class="empty">读取失败：' + (res.message || res.__status) + '</div>'; return; }
+        if(res.__status !== 200){ box.innerHTML = '<div class="empty">' + t("msg_read_fail") + (res.message || res.__status) + '</div>'; return; }
         branches = res;
         showBranches();
       })
-      .catch(function(e){ box.innerHTML = '<div class="empty">读取失败：' + e.message + '</div>'; });
+      .catch(function(e){ box.innerHTML = '<div class="empty">' + t("msg_read_fail") + e.message + '</div>'; });
   }
 
   function showBranches(){
     $("tabBranches").className = "tab act";
     $("tabFiles").className = "tab";
     var box = $("browser");
-    if(!branches.length){ box.innerHTML = '<div class="empty">还没有人上传过文件，快来当第一个吧！</div>'; return; }
+    if(!branches.length){ box.innerHTML = '<div class="empty">' + t("msg_no_users") + '</div>'; return; }
     var html = "";
     branches.forEach(function(b){
       html += '<div class="branch" onclick="openBranch(\'' + b.name.replace(/\\/g,"\\\\").replace(/'/g,"\\'") + '\')">'
             + '<span class="who">' + b.name + '</span>'
-            + '<span class="files">点开查看文件</span></div>';
+            + '<span class="files">' + t("msg_open") + '</span></div>';
     });
     box.innerHTML = html;
   }
@@ -324,26 +597,26 @@
     $("tabBranches").className = "tab";
     $("tabFiles").className = "tab act";
     var box = $("browser");
-    box.innerHTML = '<div class="empty">正在读取 ' + bname + ' 的文件…</div>';
+    box.innerHTML = '<div class="empty">' + t("msg_loading_files", { b: bname }) + '</div>';
     api("/repos/" + cfg.owner + "/" + cfg.repo + "/git/trees/" + encodeURIComponent(bname) + "?recursive=1")
       .then(function(res){
-        if(res.__status !== 200){ box.innerHTML = '<div class="empty">读取失败：' + (res.message || res.__status) + '</div>'; return; }
+        if(res.__status !== 200){ box.innerHTML = '<div class="empty">' + t("msg_read_fail") + (res.message || res.__status) + '</div>'; return; }
         var files = (res.tree || []).filter(function(t){ return t.type === "blob"; });
         if(!files.length){
-          box.innerHTML = '<div class="empty">这个分支还没有文件。<br><span style="font-size:12px"><a href="javascript:showBranches()" style="color:#3b7cff">← 返回用户列表</a></span></div>';
+          box.innerHTML = '<div class="empty">' + t("msg_no_files") + '<br><span style="font-size:12px"><a href="javascript:showBranches()" style="color:#3b7cff">' + t("back") + '</a></span></div>';
           return;
         }
         var html = '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">'
-                 + '<strong style="font-size:14px">' + bname + ' 的文件（' + files.length + ' 个）</strong>'
-                 + '<a href="javascript:showBranches()" style="color:#3b7cff;font-size:13px;text-decoration:none">← 返回用户列表</a></div>';
+                 + '<strong style="font-size:14px">' + t("files_count", { b: bname, n: files.length }) + '</strong>'
+                 + '<a href="javascript:showBranches()" style="color:#3b7cff;font-size:13px;text-decoration:none">' + t("back") + '</a></div>';
         files.forEach(function(f){
           var dl = "https://raw.githubusercontent.com/" + cfg.owner + "/" + cfg.repo + "/" + encodeURIComponent(bname) + "/" + f.path.split("/").map(encodeURIComponent).join("/");
           html += '<div class="fileitem"><span class="name">' + f.path + '</span>'
-                + '<a href="' + dl + '" target="_blank" rel="noopener">下载</a></div>';
+                + '<a href="' + dl + '" target="_blank" rel="noopener">' + t("download") + '</a></div>';
         });
         box.innerHTML = html;
       })
-      .catch(function(e){ box.innerHTML = '<div class="empty">读取失败：' + e.message + '</div>'; });
+      .catch(function(e){ box.innerHTML = '<div class="empty">' + t("msg_read_fail") + e.message + '</div>'; });
   }
 
   function showFiles(){
@@ -351,7 +624,6 @@
     showBranches();
   }
 
-  // ---- 设置 ----
   function openSettings(){ $("settingsMask").style.display = "flex"; }
   function closeSettings(save){
     if(save){
@@ -359,12 +631,12 @@
       cfg.repo = $("sRepo").value.trim();
       cfg.token = $("sToken").value.trim();
       saveCfg();
+      renderView();
       refreshBranches();
     }
     $("settingsMask").style.display = "none";
   }
 
-  // ---- 文件选择 ----
   function setupDrop(){
     var drop = $("drop");
     drop.addEventListener("click", function(){ $("fileInput").click(); });
@@ -376,12 +648,12 @@
     });
     drop.addEventListener("drop", function(e){
       var f = e.dataTransfer.files && e.dataTransfer.files[0];
-      if(f){ pickedFile = f; $("fileinfo").textContent = "已选择：" + f.name + "（" + fmtSize(f.size) + "）"; }
+      if(f){ pickedFile = f; $("fileinfo").textContent = t("file_selected") + f.name + "（" + fmtSize(f.size) + "）"; }
     });
     var fi = document.createElement("input");
     fi.type = "file"; fi.id = "fileInput"; fi.style.display = "none";
     fi.addEventListener("change", function(){
-      if(fi.files && fi.files[0]){ pickedFile = fi.files[0]; $("fileinfo").textContent = "已选择：" + pickedFile.name + "（" + fmtSize(pickedFile.size) + "）"; }
+      if(fi.files && fi.files[0]){ pickedFile = fi.files[0]; $("fileinfo").textContent = t("file_selected") + pickedFile.name + "（" + fmtSize(pickedFile.size) + "）"; }
     });
     document.body.appendChild(fi);
   }
@@ -391,16 +663,25 @@
     return (n/1024/1024).toFixed(1) + " MB";
   }
 
+  window.toggleLang = toggleLang;
   window.openSettings = openSettings;
   window.closeSettings = closeSettings;
+  window.switchAuth = switchAuth;
+  window.doAuth = doAuth;
+  window.logout = logout;
   window.doUpload = doUpload;
   window.showBranches = showBranches;
   window.showFiles = showFiles;
   window.openBranch = openBranch;
 
   loadCfg();
+  loadLang();
   setupDrop();
-  if(cfg.owner && cfg.repo) refreshBranches();
+  var savedUser = null;
+  try { savedUser = sessionStorage.getItem("ghshare_user"); } catch(e){}
+  if(savedUser) curUser = savedUser;
+  renderView();
+  if(hasCfg()) refreshBranches();
 })();
 </script>
 </body>
