@@ -3,114 +3,158 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>共享网盘 · GitHub 版 | Shared Drive</title>
+<title>云盘空间 · GitHub 版 | Cloud Drive</title>
 <style>
+  :root {
+    --bg:#ffffff; --bg-subtle:#f6f8fa;
+    --text:#1f2328; --text-muted:#59636e; --text-subtle:#818b98;
+    --border:#d0d7de; --border-muted:#d8dee6;
+    --link:#0969da; --link-hover:#0550ae;
+    --btn-primary-bg:#1f883d; --btn-primary-hover:#1a7f37;
+    --card-bg:#ffffff; --header-bg:#24292f; --header-text:#ffffff;
+    --input-bg:#ffffff; --hover-bg:#f3f4f6;
+    --danger:#cf222e; --success:#1a7f37;
+    --notice-bg:#fff8c5; --notice-border:#d4a72c; --notice-text:#7d4e00;
+    --warn-bg:#ffebe9; --warn-border:#ff818266; --warn-text:#cf222e;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg:#0d1117; --bg-subtle:#161b22;
+      --text:#e6edf3; --text-muted:#9198a1; --text-subtle:#7d8590;
+      --border:#30363d; --border-muted:#21262d;
+      --link:#58a6ff; --link-hover:#79c0ff;
+      --btn-primary-bg:#238636; --btn-primary-hover:#2ea043;
+      --card-bg:#161b22; --header-bg:#010409; --header-text:#e6edf3;
+      --input-bg:#0d1117; --hover-bg:#1c2128;
+      --danger:#f85149; --success:#3fb950;
+      --notice-bg:#3a2d12; --notice-border:#9e6a03; --notice-text:#eac54f;
+      --warn-bg:#3d1618; --warn-border:#f8514966; --warn-text:#ff8182;
+    }
+  }
   * { margin:0; padding:0; box-sizing:border-box; }
   body {
-    font-family:"Segoe UI","Microsoft YaHei",system-ui,sans-serif;
-    background:#f4f7fb; color:#1f2d3d; min-height:100vh;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans","Microsoft YaHei",Helvetica,Arial,sans-serif;
+    color:var(--text); background:var(--bg); min-height:100vh;
+    line-height:1.5;
   }
   header {
-    background:linear-gradient(135deg,#3b7cff,#2f5fd8);
-    color:#fff; padding:20px 24px; display:flex; align-items:center; justify-content:space-between;
-    flex-wrap:wrap; gap:10px;
+    background:var(--header-bg); color:var(--header-text);
+    padding:16px 24px; display:flex; align-items:center; justify-content:space-between;
+    flex-wrap:wrap; gap:12px; border-bottom:1px solid var(--border);
   }
-  header h1 { font-size:22px; font-weight:600; }
-  header .sub { font-size:13px; opacity:.85; margin-top:4px; }
+  header .brand { display:flex; align-items:center; gap:10px; }
+  header .logo { color:var(--header-text); display:flex; }
+  header h1 { font-size:18px; font-weight:600; letter-spacing:.2px; }
+  header .sub { font-size:12px; opacity:.75; margin-top:2px; }
+  .hbtns { display:flex; gap:8px; align-items:center; }
   .btn {
-    border:none; border-radius:10px; padding:10px 18px; font-size:14px; cursor:pointer;
-    transition:filter .15s;
+    border:1px solid var(--border); border-radius:6px; padding:6px 14px;
+    font-size:13px; cursor:pointer; background:transparent; color:var(--text);
+    transition:background .15s ease, color .15s ease, border-color .15s ease;
   }
-  .btn:hover { filter:brightness(1.08); }
+  .btn:hover { background:var(--hover-bg); }
   .btn:disabled { opacity:.5; cursor:not-allowed; }
-  .btn-primary { background:#3b7cff; color:#fff; }
-  .btn-ghost { background:rgba(255,255,255,.16); color:#fff; }
-  .btn-line { background:#fff; color:#3b7cff; border:1px solid #cfe0ff; }
-  .btn-danger { background:#fff; color:#d64545; border:1px solid #f0c4c4; }
-  .btn-lang { background:#fff; color:#2f5fd8; border:none; border-radius:999px; padding:8px 16px; font-size:13px; font-weight:600; }
-  .wrap { max-width:1100px; margin:24px auto; padding:0 16px; }
-  .notice {
-    background:#fff7e8; border:1px solid #f2c94c; color:#8a6100;
-    border-radius:12px; padding:12px 16px; font-size:13px; line-height:1.7; margin-bottom:20px;
+  .btn-primary {
+    background:var(--btn-primary-bg); border-color:rgba(31,35,40,.15); color:#fff; font-weight:600;
+    padding:7px 16px;
   }
-  .warn {
-    background:#fdecec; border:1px solid #e5a3a3; color:#a33;
-    border-radius:12px; padding:12px 16px; font-size:13px; line-height:1.7; margin-bottom:20px;
+  .btn-primary:hover { background:var(--btn-primary-hover); }
+  .btn-ghost { background:transparent; border-color:var(--border); color:var(--header-text); }
+  .btn-ghost:hover { background:rgba(255,255,255,.12); }
+  .btn-danger { color:var(--danger); border-color:var(--border); }
+  .btn-danger:hover { background:var(--warn-bg); }
+  .btn-lang { border-radius:6px; padding:6px 14px; font-weight:600; color:var(--header-text); border-color:var(--border); }
+  .wrap { max-width:1080px; margin:24px auto; padding:0 16px; }
+  .notice, .warn {
+    border-radius:6px; padding:12px 16px; font-size:13px; line-height:1.7; margin-bottom:16px;
+    border:1px solid;
   }
-  .grid { display:grid; grid-template-columns:1fr 1fr; gap:20px; }
-  @media (max-width:860px){ .grid { grid-template-columns:1fr; } }
+  .notice { background:var(--notice-bg); border-color:var(--notice-border); color:var(--notice-text); }
+  .warn { background:var(--warn-bg); border-color:var(--warn-border); color:var(--warn-text); }
+  .grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+  @media (max-width:880px){ .grid { grid-template-columns:1fr; } }
   .card {
-    background:#fff; border-radius:16px; padding:20px; box-shadow:0 2px 12px rgba(30,60,120,.06);
+    background:var(--card-bg); border:1px solid var(--border); border-radius:6px; padding:20px;
   }
-  .card h2 { font-size:17px; margin-bottom:4px; color:#2c3e50; }
-  .card .hint { font-size:12px; color:#7a8aa0; margin-bottom:14px; }
-  label { display:block; font-size:13px; color:#4a5a70; margin:12px 0 6px; }
-  input[type=text], input[type=password], input[type=file] {
-    width:100%; padding:10px 12px; border:1px solid #d5e2f5; border-radius:10px;
-    font-size:14px; background:#fafcff; outline:none;
+  .card h2 { font-size:16px; margin-bottom:4px; color:var(--text); }
+  .card .hint { font-size:12px; color:var(--text-muted); margin-bottom:14px; }
+  label { display:block; font-size:13px; color:var(--text-muted); margin:12px 0 6px; font-weight:600; }
+  input[type=text], input[type=password] {
+    width:100%; padding:8px 12px; border:1px solid var(--border); border-radius:6px;
+    font-size:14px; background:var(--input-bg); color:var(--text); outline:none;
+    transition:border-color .15s, box-shadow .15s;
   }
-  input:focus { border-color:#3b7cff; }
+  input:focus { border-color:var(--link); box-shadow:0 0 0 3px rgba(9,105,218,.25); }
   .drop {
-    border:2px dashed #b9d0f5; border-radius:12px; padding:26px; text-align:center;
-    color:#6b81a0; font-size:14px; cursor:pointer; background:#fafcff; margin-top:8px;
+    border:2px dashed var(--border); border-radius:6px; padding:26px; text-align:center;
+    color:var(--text-muted); font-size:14px; cursor:pointer; background:var(--bg-subtle);
+    margin-top:8px; transition:border-color .15s, background .15s;
   }
-  .drop.on { border-color:#3b7cff; background:#eef4ff; }
-  .fileinfo { font-size:13px; color:#3b7cff; margin-top:8px; word-break:break-all; }
-  .status { margin-top:12px; font-size:13px; line-height:1.6; min-height:20px; }
-  .status.ok { color:#1e8e5a; } .status.err { color:#d64545; } .status.info { color:#3b7cff; }
-  .progress { height:8px; background:#e6eefc; border-radius:4px; margin-top:8px; overflow:hidden; display:none; }
-  .progress > div { height:100%; width:0; background:#3b7cff; border-radius:4px; transition:width .2s; }
-  .sectabs { display:flex; gap:8px; margin-bottom:12px; }
+  .drop:hover, .drop.on { border-color:var(--link); background:var(--hover-bg); }
+  .drop svg { display:block; margin:0 auto 8px; stroke:var(--link); }
+  .fileinfo { font-size:13px; color:var(--link); margin-top:8px; word-break:break-all; }
+  .status { margin-top:10px; font-size:13px; line-height:1.6; min-height:20px; }
+  .status.ok { color:var(--success); } .status.err { color:var(--danger); } .status.info { color:var(--link); }
+  .progress { height:6px; background:var(--bg-subtle); border:1px solid var(--border-muted); border-radius:6px; margin-top:10px; overflow:hidden; display:none; }
+  .progress > div { height:100%; width:0; background:var(--btn-primary-bg); transition:width .25s ease; }
+  .sectabs { display:flex; gap:4px; margin-bottom:14px; border:1px solid var(--border); border-radius:6px; padding:3px; width:max-content; max-width:100%; }
   .sectabs .tab {
-    padding:7px 14px; border-radius:999px; font-size:13px; background:#eef4ff; color:#3b7cff; cursor:pointer;
+    padding:5px 14px; border-radius:4px; font-size:13px; color:var(--text-muted);
+    cursor:pointer; transition:all .15s ease; font-weight:600; white-space:nowrap;
   }
-  .sectabs .tab.act { background:#3b7cff; color:#fff; }
+  .sectabs .tab:hover { color:var(--text); }
+  .sectabs .tab.act { background:var(--hover-bg); color:var(--link); }
   .branch {
     display:flex; align-items:center; justify-content:space-between; gap:8px;
-    padding:10px 12px; border:1px solid #e3ecfa; border-radius:10px; margin-bottom:8px;
-    font-size:14px; cursor:pointer; background:#fafcff;
+    padding:9px 12px; border:1px solid var(--border); border-radius:6px; margin-bottom:8px;
+    font-size:14px; cursor:pointer; background:var(--card-bg); transition:background .15s, border-color .15s;
   }
-  .branch:hover { border-color:#3b7cff; }
-  .branch .who { font-weight:600; color:#2c3e50; }
-  .branch .files { font-size:12px; color:#7a8aa0; }
+  .branch:hover { background:var(--hover-bg); border-color:var(--link); }
+  .branch .who { font-weight:600; color:var(--text); }
+  .branch .files { font-size:12px; color:var(--text-subtle); }
   .fileitem {
     display:flex; align-items:center; justify-content:space-between; gap:8px;
-    padding:9px 12px; border-bottom:1px solid #f0f5fd; font-size:13px;
+    padding:8px 10px; border-bottom:1px solid var(--border-muted); font-size:13px;
   }
-  .fileitem .name { color:#2c3e50; word-break:break-all; }
-  .fileitem a { color:#3b7cff; text-decoration:none; font-size:13px; white-space:nowrap; }
-  .fileitem a:hover { text-decoration:underline; }
-  .modal-mask {
-    position:fixed; inset:0; background:rgba(20,35,60,.45); display:none;
-    align-items:center; justify-content:center; z-index:50; padding:16px;
-  }
-  .modal {
-    background:#fff; border-radius:16px; padding:24px; width:100%; max-width:460px;
-  }
-  .modal h3 { font-size:17px; margin-bottom:14px; }
-  .modal .row { margin-bottom:10px; }
-  .modal .actions { display:flex; gap:10px; justify-content:flex-end; margin-top:16px; }
-  .small { font-size:12px; color:#8a94a6; line-height:1.6; }
-  .empty { text-align:center; color:#a0aec2; font-size:13px; padding:26px 0; }
+  .fileitem .name { color:var(--text); word-break:break-all; }
+  .fileitem a { color:var(--link); text-decoration:none; font-size:13px; white-space:nowrap; font-weight:600; }
+  .fileitem a:hover { color:var(--link-hover); text-decoration:underline; }
+  .bl { color:var(--link); text-decoration:none; }
+  .bl:hover { color:var(--link-hover); text-decoration:underline; }
+  .small { font-size:12px; color:var(--text-subtle); line-height:1.6; }
+  .empty { text-align:center; color:var(--text-subtle); font-size:13px; padding:26px 0; }
   .accountbar {
     display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;
-    background:#fff; border-radius:16px; padding:16px 20px; box-shadow:0 2px 12px rgba(30,60,120,.06);
-    margin-bottom:20px;
+    background:var(--card-bg); border:1px solid var(--border); border-radius:6px; padding:12px 16px;
+    margin-bottom:16px;
   }
-  .accountbar .who { font-size:15px; color:#2c3e50; font-weight:600; }
-  footer { text-align:center; color:#a0aec2; font-size:12px; padding:24px 0 32px; }
+  .accountbar .who { font-size:14px; color:var(--text); font-weight:600; }
+  .accountbar .who .badge {
+    display:inline-block; background:var(--bg-subtle); color:var(--text-muted);
+    border:1px solid var(--border); font-size:11px; padding:2px 10px; border-radius:999px;
+    margin-left:8px; font-weight:600;
+  }
+  footer { text-align:center; color:var(--text-subtle); font-size:12px; padding:22px 0 30px; }
 </style>
 </head>
 <body>
 
 <header>
-  <div>
-    <h1 id="appTitle">共享网盘 · GitHub 版</h1>
-    <div class="sub" id="appSub">账号登录 · 每人一个分支空间 · 所有人可上传下载</div>
+  <div class="brand">
+    <span class="logo">
+      <svg width="26" height="26" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+        <path d="M5.45 5.154A4.25 4.25 0 0 0 9.25 7.5h.75a10.017 10.017 0 0 1 4.6 1.088l.284-.887A11.515 11.515 0 0 0 10 6.25V5h.25c.58 0 1.08-.28 1.413-.742l.055-.077A1.25 1.25 0 0 0 10.75 2H7.683a3.5 3.5 0 0 0-2.654 1.288l-.44.52c-.361.426-.137 1.046.26 1.346Z"/>
+        <path d="M1.98 12.875A2.117 2.117 0 0 1 .277 10.5a1.807 1.807 0 0 1 .392-1.128l2.53-3.192a3.25 3.25 0 0 1 2.528-1.18h2.258a1.25 1.25 0 0 1 1.25 1.25c0 .296-.1.552-.268.75h-1.044c-.026-.01-.047-.02-.07-.03a.75.75 0 0 0-.037.03l-2.528 3.192A.307.307 0 0 0 5.66 9.25h.377a.75.75 0 0 1 0 1.5H5.09a2.117 2.117 0 0 1-1.958-1.375l-1.027 1.296a.32.32 0 0 0 .022.458l.957.792c.18.149.426.032.49-.224l.672-2.535a.75.75 0 1 1 1.449.386l-.67 2.528a1.08 1.08 0 0 1-.947.77l-1.095.004a1.09 1.09 0 0 1-.002 0Z"/>
+        <path d="M3.686 9.25H5.75a.75.75 0 0 0 0-1.5H4.416l.57-.72h2.94c.137 0 .27-.023.394-.067.11-.04.215-.09.315-.15.34-.204.61-.545.74-.94l.097-.29.098.288a2.04 2.04 0 0 0 .7.926c.08.051.164.098.252.14.128.068.268.106.414.134.089.017.18.028.272.036h2.006a.75.75 0 1 1 0 1.5h-2.12a4.66 4.66 0 0 1-.81-.072c-.247-.042-.486-.105-.714-.187a3.59 3.59 0 0 1-.55-.262c-.02-.013-.04-.026-.06-.04l.373 1.04a.75.75 0 0 1-.7 1.006H5.392l-.632.797H3.686Z"/>
+      </svg>
+    </span>
+    <div>
+      <h1 id="appTitle">云盘空间 · GitHub 版</h1>
+      <div class="sub" id="appSub">账号登录 · 每人一个分支空间 · 所有人可上传下载</div>
+    </div>
   </div>
-  <div style="display:flex;gap:10px;">
+  <div class="hbtns">
     <button class="btn btn-lang" id="langBtn" onclick="toggleLang()">EN</button>
-    <button class="btn btn-ghost" onclick="openSettings()" data-i18n="btn_settings">设置</button>
   </div>
 </header>
 
@@ -118,14 +162,12 @@
   <div class="warn" id="topWarn"></div>
   <div class="notice" id="notice"></div>
 
-  <!-- 账号区 -->
   <div class="accountbar" id="accountBar" style="display:none;">
     <div class="who" id="accountWho"></div>
     <button class="btn btn-danger" id="logoutBtn" onclick="logout()" data-i18n="btn_logout">退出</button>
   </div>
 
-  <!-- 登录 / 注册 -->
-  <div class="card" id="authCard">
+  <div class="card" id="authCard" style="max-width:520px;margin:0 auto;">
     <div class="sectabs">
       <span class="tab act" id="tabLogin" onclick="switchAuth('login')" data-i18n="tab_login">登录</span>
       <span class="tab" id="tabReg" onclick="switchAuth('reg')" data-i18n="tab_register">注册</span>
@@ -145,13 +187,19 @@
     <div class="small" id="authHelp" style="margin-top:8px;"></div>
   </div>
 
-  <!-- 主界面 -->
-  <div class="grid" id="mainGrid" style="display:none;">
+  <div class="grid" id="mainGrid" style="display:none;margin-top:16px;">
     <div class="card">
       <h2 data-i18n="up_title">上传文件</h2>
       <div class="hint" id="upHint"></div>
       <label data-i18n="lbl_file">选择文件</label>
-      <div class="drop" id="drop" data-i18n="drop_text">点击选择文件，或把文件拖到这里</div>
+      <div class="drop" id="drop">
+        <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+          <polyline points="17 8 12 3 7 8"/>
+          <line x1="12" y1="3" x2="12" y2="15"/>
+        </svg>
+        <span data-i18n="drop_text">点击选择文件，或把文件拖到这里</span>
+      </div>
       <div class="fileinfo" id="fileinfo"></div>
       <div style="margin-top:14px;">
         <button class="btn btn-primary" id="uploadBtn" onclick="doUpload()" data-i18n="btn_upload">开始上传</button>
@@ -174,35 +222,10 @@
 
 <footer id="footerText"></footer>
 
-<div class="modal-mask" id="settingsMask">
-  <div class="modal">
-    <h3 data-i18n="settings_title">站长配置（GitHub）</h3>
-    <div class="row">
-      <label data-i18n="lbl_owner">仓库所有者（你的 GitHub 用户名）</label>
-      <input type="text" id="sOwner" placeholder="cloupi">
-    </div>
-    <div class="row">
-      <label data-i18n="lbl_repo">仓库名</label>
-      <input type="text" id="sRepo" placeholder="cloupi.github.io">
-    </div>
-    <div class="row">
-      <label data-i18n="lbl_token">GitHub Token（站长密钥）</label>
-      <input type="password" id="sToken" placeholder="ghp_... or github_pat_...">
-      <div class="small" id="tokenHelp"></div>
-    </div>
-    <div class="actions">
-      <button class="btn btn-line" onclick="closeSettings(false)" data-i18n="btn_cancel">取消</button>
-      <button class="btn btn-primary" onclick="closeSettings(true)" data-i18n="btn_save">保存</button>
-    </div>
-  </div>
-</div>
-
 <script>
 (function(){
   "use strict";
-  var KEY = "ghshare_cfg_v2";
   var LANG_KEY = "ghshare_lang_v1";
-  // 站长可把配置直接写在这里并部署，这样访客打开网页就已配置好
   var CONFIG_DEFAULT = { owner:"", repo:"", token:"" };
   var cfg = { owner:"", repo:"", token:"" };
   var pickedFile = null;
@@ -213,9 +236,9 @@
 
   var I18N = {
     zh: {
-      app_title:"共享网盘 · GitHub 版", app_sub:"账号登录 · 每人一个分支空间 · 所有人可上传下载",
+      app_title:"云盘空间 · GitHub 版", app_sub:"账号登录 · 每人一个分支空间 · 所有人可上传下载",
       btn_settings:"设置", btn_lang:"EN",
-      top_warn:"<strong>重要安全提醒：</strong>站长 Token 保存在这个网页里，公开部署后懂技术的人看网页源码就能拿到它。此方案仅适合你和信任的朋友使用；要做成面向全世界的公开网站，请使用 Cloudreve 方案（路线二）。",
+      top_warn:"<strong>安全说明：</strong>本站的访问密钥已由站长内置在网页里，访客<strong>无需填写任何 Token</strong>，打开即可注册使用。注意：密钥写在网页源码里，懂技术的人可以看到，此方案仅适合你和信任的朋友；要做成面向全世界的公开网站，请使用 Cloudreve 方案（路线二）。",
       notice:"<strong>每个人注册一个账号</strong>，登录后上传的文件会存进<strong>以你用户名命名的分支</strong>，所有人都能浏览下载。单文件最大 100MB，可传任意类型文件。",
       up_title:"上传文件", up_hint:"登录账号：{u}。你的文件会存进分支「{u}」。",
       lbl_uname:"你的用户名", lbl_uname2:"用户名", lbl_password:"密码",
@@ -226,7 +249,7 @@
       auth_help_reg:"注册后会自动登录，你的文件空间以用户名为名。",
       browse_title:"浏览与下载", browse_hint:"每个用户一个分支，点开看文件，直接下载。",
       tab_users:"所有用户", tab_files:"分支文件",
-      footer:"共享网盘 · 基于 GitHub API 构建 · 账号密码哈希存储在仓库 _accounts 目录",
+      footer:"云盘空间 · 基于 GitHub API 构建 · 账号密码哈希存储在仓库 _accounts 目录",
       settings_title:"站长配置（GitHub）", lbl_owner:"仓库所有者（你的 GitHub 用户名）", lbl_repo:"仓库名",
       lbl_token:"GitHub Token（站长密钥）",
       token_help:"生成方法：GitHub → Settings → Developer settings → Personal access tokens → Tokens (classic)，勾选 repo 权限。Token 保存在浏览器；要部署给所有人用，请把 Token 直接写进网页源码顶部的 CONFIG_DEFAULT。",
@@ -249,12 +272,12 @@
       msg_no_files:"这个分支还没有文件。", back:"← 返回用户列表",
       files_count:"{b} 的文件（{n} 个）", download:"下载",
       file_selected:"已选择：", welcome:"当前用户：",
-      msg_need_config:"请先点右上角「设置」完成站长配置，再注册使用。"
+      msg_need_config:"网站还没配置好：站长需要把 Token 写进网页源码顶部的 CONFIG_DEFAULT，再重新部署。"
     },
     en: {
-      app_title:"Shared Drive · GitHub Edition", app_sub:"Account login · One branch per user · Everyone can upload & download",
+      app_title:"Cloud Drive · GitHub Edition", app_sub:"Account login · One branch per user · Everyone can upload & download",
       btn_settings:"Settings", btn_lang:"中",
-      top_warn:"<strong>Security warning:</strong> The owner Token lives inside this web page. Once deployed publicly, anyone who reads the page source can extract it. Use this only for yourself and trusted friends; for a fully public site, use the Cloudreve route (Route 2).",
+      top_warn:"<strong>Security note:</strong> The site key is embedded in this page by the owner — visitors do <strong>not need any Token</strong> and can sign up right away. The key is visible in the page source, so use this only for yourself and trusted friends; for a fully public site, use the Cloudreve route (Route 2).",
       notice:"<strong>Everyone creates their own account.</strong> Files you upload go into a <strong>branch named after your username</strong>, and everyone can browse and download. Max file size: 100MB. Any file type works.",
       up_title:"Upload Files", up_hint:"Logged in as: {u}. Your files go into branch \"{u}\".",
       lbl_uname:"Your username", lbl_uname2:"Username", lbl_password:"Password",
@@ -265,7 +288,7 @@
       auth_help_reg:"You'll be logged in automatically. Your file space is named after your username.",
       browse_title:"Browse & Download", browse_hint:"Each user is a branch. Open one to see and download files.",
       tab_users:"All Users", tab_files:"Branch Files",
-      footer:"Shared Drive · Built on GitHub API · Account hashes stored in the _accounts folder",
+      footer:"Cloud Drive · Built on GitHub API · Account hashes stored in the _accounts folder",
       settings_title:"Owner Setup (GitHub)", lbl_owner:"Repository owner (your GitHub username)", lbl_repo:"Repository name",
       lbl_token:"GitHub Token (owner key)",
       token_help:"How to create: GitHub → Settings → Developer settings → Personal access tokens → Tokens (classic), check the \"repo\" scope. The Token is stored in your browser; to deploy for everyone, paste it into CONFIG_DEFAULT at the top of this file.",
@@ -288,7 +311,7 @@
       msg_no_files:"This branch has no files yet.", back:"← Back to user list",
       files_count:"{b}'s files ({n})", download:"Download",
       file_selected:"Selected: ", welcome:"Current user: ",
-      msg_need_config:"Please complete the owner setup via \"Settings\" (top right) first."
+      msg_need_config:"Site not configured: the owner must put the Token into CONFIG_DEFAULT at the top of the source and redeploy."
     }
   };
 
@@ -318,21 +341,12 @@
     $("topWarn").innerHTML = t("top_warn");
     $("notice").innerHTML = t("notice");
     $("footerText").textContent = t("footer");
-    $("tokenHelp").textContent = t("token_help");
     $("authHelp").textContent = authMode === "login" ? t("auth_help_login") : t("auth_help_reg");
     renderView();
   }
 
   function loadCfg(){
-    var saved = null;
-    try { var s = localStorage.getItem(KEY); if(s) saved = JSON.parse(s); } catch(e){}
-    cfg = (saved && saved.owner) ? saved : { owner: CONFIG_DEFAULT.owner, repo: CONFIG_DEFAULT.repo, token: CONFIG_DEFAULT.token };
-    $("sOwner").value = cfg.owner;
-    $("sRepo").value = cfg.repo;
-    $("sToken").value = cfg.token;
-  }
-  function saveCfg(){
-    try { localStorage.setItem(KEY, JSON.stringify(cfg)); } catch(e){}
+    cfg = { owner: CONFIG_DEFAULT.owner, repo: CONFIG_DEFAULT.repo, token: CONFIG_DEFAULT.token };
   }
   function hasCfg(){ return !!(cfg.owner && cfg.repo && cfg.token); }
 
@@ -351,7 +365,6 @@
     });
   }
 
-  // ---- 密码哈希 ----
   function randomSalt(){
     var chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
     var s = "";
@@ -382,10 +395,8 @@
   }
 
   function validUname(u){ return /^[A-Za-z0-9_-]{1,20}$/.test(u); }
-
   function accountPath(u){ return "_accounts/" + encodeURIComponent(u) + ".json"; }
 
-  // ---- 注册 / 登录 ----
   function switchAuth(mode){
     authMode = mode;
     $("tabLogin").className = "tab" + (mode === "login" ? " act" : "");
@@ -398,7 +409,7 @@
   function doAuth(){
     var status = $("authStatus");
     status.className = "status"; status.textContent = "";
-    if(!hasCfg()){ status.className = "status err"; status.textContent = t("msg_need_config"); openSettings(); return; }
+    if(!hasCfg()){ status.className = "status err"; status.textContent = t("msg_need_config"); return; }
     var u = $("authUname").value.trim();
     var p = $("authPass").value;
     if(!u || !p || !validUname(u)){ status.className = "status err"; status.textContent = t("msg_need_uname_pw"); return; }
@@ -466,14 +477,13 @@
     renderView();
   }
 
-  // ---- 视图 ----
   function renderView(){
     var logged = !!curUser && hasCfg();
     $("authCard").style.display = logged ? "none" : "block";
     $("mainGrid").style.display = logged ? "grid" : "none";
     $("accountBar").style.display = logged ? "flex" : "none";
     if(logged){
-      $("accountWho").textContent = t("welcome") + curUser;
+      $("accountWho").innerHTML = t("welcome") + curUser + '<span class="badge">' + curUser + '</span>';
       $("upHint").textContent = t("up_hint", { u: curUser });
       $("authPass").value = "";
       $("authUname").value = "";
@@ -603,12 +613,12 @@
         if(res.__status !== 200){ box.innerHTML = '<div class="empty">' + t("msg_read_fail") + (res.message || res.__status) + '</div>'; return; }
         var files = (res.tree || []).filter(function(t){ return t.type === "blob"; });
         if(!files.length){
-          box.innerHTML = '<div class="empty">' + t("msg_no_files") + '<br><span style="font-size:12px"><a href="javascript:showBranches()" style="color:#3b7cff">' + t("back") + '</a></span></div>';
+          box.innerHTML = '<div class="empty">' + t("msg_no_files") + '<br><span style="font-size:12px"><a href="javascript:showBranches()" class="bl">' + t("back") + '</a></span></div>';
           return;
         }
         var html = '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">'
                  + '<strong style="font-size:14px">' + t("files_count", { b: bname, n: files.length }) + '</strong>'
-                 + '<a href="javascript:showBranches()" style="color:#3b7cff;font-size:13px;text-decoration:none">' + t("back") + '</a></div>';
+                 + '<a href="javascript:showBranches()" class="bl" style="font-size:13px">' + t("back") + '</a></div>';
         files.forEach(function(f){
           var dl = "https://raw.githubusercontent.com/" + cfg.owner + "/" + cfg.repo + "/" + encodeURIComponent(bname) + "/" + f.path.split("/").map(encodeURIComponent).join("/");
           html += '<div class="fileitem"><span class="name">' + f.path + '</span>'
@@ -622,19 +632,6 @@
   function showFiles(){
     if(!branches.length){ showBranches(); return; }
     showBranches();
-  }
-
-  function openSettings(){ $("settingsMask").style.display = "flex"; }
-  function closeSettings(save){
-    if(save){
-      cfg.owner = $("sOwner").value.trim();
-      cfg.repo = $("sRepo").value.trim();
-      cfg.token = $("sToken").value.trim();
-      saveCfg();
-      renderView();
-      refreshBranches();
-    }
-    $("settingsMask").style.display = "none";
   }
 
   function setupDrop(){
@@ -664,8 +661,6 @@
   }
 
   window.toggleLang = toggleLang;
-  window.openSettings = openSettings;
-  window.closeSettings = closeSettings;
   window.switchAuth = switchAuth;
   window.doAuth = doAuth;
   window.logout = logout;
