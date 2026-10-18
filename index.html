@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<meta name="description" content="Welcome to cloupi.github.io - tools and apps, hosted on GitHub Pages">
-<title>cloupi.github.io</title>
+<meta name="description" content="cloupi.github.io/tools - a growing collection of handy online utilities">
+<title>Tools · cloupi.github.io</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><rect width='24' height='24' rx='5' fill='white'/><path fill='%231f2328' d='M12 .3C5.9.3.9 5.3.9 11.4c0 4.9 3.2 9.1 7.6 10.6.6.1.8-.3.8-.6v-2c-3.1.7-3.7-1.5-3.7-1.5-.5-1.3-1.2-1.7-1.2-1.7-1-.7.1-.7.1-.7 1.1.1 1.7 1.1 1.7 1.1 1 1.7 2.6 1.2 3.2.9.1-.7.4-1.2.7-1.5-2.2-.3-4.6-1.1-4.6-5 0-1.1.4-2 1-2.7-.1-.3-.4-1.4.1-2.9 0 0 .9-.3 2.9 1.1.8-.2 1.7-.3 2.6-.3.9 0 1.8.1 2.6.3 2-1.4 2.9-1.1 2.9-1.1.5 1.5.2 2.6.1 2.9.6.7 1 1.6 1 2.7 0 3.9-2.4 4.7-4.6 5 .4.3.7 1 .7 2 0 1.5 0 2.6 0 3 .6.2 1.2-.8 1.2-.8 4.4-1.5 7.6-5.7 7.6-10.6C23.1 5.3 18.1.3 12 .3z'/></svg>">
 <style>
 /* ===== GitHub Primer palette, follows system color scheme ===== */
@@ -15,7 +15,7 @@
   --border:#d0d7de; --border-muted:#d8dee4;
   --fg:#1f2328; --fg-muted:#59636e; --fg-subtle:#6e7781;
   --accent:#0969da; --accent-hover:#0550ae; --accent-muted:rgba(9,105,218,.10);
-  --green:#1a7f37; --purple:#8250df; --blue:#0969da;
+  --green:#1a7f37; --purple:#8250df; --blue:#0969da; --orange:#bf8700; --red:#cf222e;
   --dot:rgba(31,35,40,.07);
   --card-shadow:0 1px 0 rgba(31,35,40,.04),0 6px 16px rgba(31,35,40,.06);
   --btn-bg:#f6f8fa; --btn-border:#d0d7de;
@@ -28,7 +28,7 @@
     --border:#30363d; --border-muted:#21262d;
     --fg:#e6edf3; --fg-muted:#9198a1; --fg-subtle:#7d8590;
     --accent:#4493f8; --accent-hover:#79c0ff; --accent-muted:rgba(56,139,253,.14);
-    --green:#3fb950; --purple:#bc8cff; --blue:#4493f8;
+    --green:#3fb950; --purple:#bc8cff; --blue:#4493f8; --orange:#d29922; --red:#f85149;
     --dot:rgba(230,237,243,.08);
     --card-shadow:0 1px 0 rgba(1,4,9,.4),0 6px 16px rgba(1,4,9,.4);
     --btn-bg:#21262d; --btn-border:#30363d;
@@ -66,129 +66,74 @@ a:hover{text-decoration:underline}
 .btn:hover{background:var(--bg-muted);text-decoration:none;border-color:var(--border)}
 .btn-primary{background:var(--accent);border-color:var(--accent);color:#fff}
 .btn-primary:hover{background:var(--accent-hover);color:#fff}
+.btn.active{color:var(--accent);border-color:var(--accent);background:var(--accent-muted)}
 @media (max-width:560px){.nav-links .btn{padding:0 10px}.nav-links .hide-sm{display:none}}
 
-/* ===== Hero ===== */
-.hero{
+/* ===== Header ===== */
+.tools-header{
   position:relative;overflow:hidden;
   background-image:radial-gradient(var(--dot) 1.2px,transparent 1.2px);
   background-size:26px 26px;background-position:center;
   border-bottom:1px solid var(--border-muted);
 }
-.hero-inner{display:grid;grid-template-columns:1fr;gap:36px;align-items:center;padding:64px 20px 72px}
-@media (min-width:860px){.hero-inner{grid-template-columns:1.4fr 1fr;padding:88px 20px 96px}}
-.hero-badge{
+.tools-header .inner{padding:56px 20px 60px;max-width:1080px;margin:0 auto}
+.header-badge{
   display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:600;color:var(--accent);
   background:var(--accent-muted);border:1px solid color-mix(in srgb,var(--accent) 30%,transparent);
-  padding:5px 12px;border-radius:999px;margin-bottom:20px;
+  padding:5px 12px;border-radius:999px;margin-bottom:18px;
 }
-.hero h1{font-size:40px;line-height:1.15;font-weight:700;letter-spacing:-.02em}
-@media (min-width:860px){.hero h1{font-size:54px}}
-.hero h1 .mono{font-weight:700}
-.hero .lead{font-size:17px;color:var(--fg-muted);margin:18px 0 26px;max-width:560px}
-.hero-cta{display:flex;flex-wrap:wrap;gap:12px}
-.hero-side{display:flex;justify-content:center}
-.avatar-ring{
-  position:relative;width:200px;height:200px;border-radius:50%;
-  background:conic-gradient(from 210deg,var(--accent),var(--purple),var(--green),var(--accent));
-  padding:6px;animation:spin 14s linear infinite;
+.tools-header h1{font-size:42px;font-weight:700;letter-spacing:-.02em;line-height:1.15}
+@media (min-width:860px){.tools-header h1{font-size:52px}}
+.tools-header .lead{font-size:17px;color:var(--fg-muted);margin:12px 0 26px;max-width:640px}
+.search-row{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+.search-box{
+  display:flex;align-items:center;gap:8px;height:42px;flex:1;min-width:240px;max-width:420px;
+  padding:0 14px;background:var(--bg);border:1px solid var(--border);border-radius:10px;color:var(--fg-subtle);
+  transition:border-color .15s;
 }
-@keyframes spin{to{transform:rotate(360deg)}}
-.avatar-ring .inner{
-  width:100%;height:100%;border-radius:50%;background:var(--bg);display:flex;align-items:center;justify-content:center;overflow:hidden;
-}
-.avatar-ring .inner svg{width:96%;height:96%}
-@media (prefers-reduced-motion:reduce){.avatar-ring{animation:none}}
-.avatar-float{
-  position:absolute;right:-8px;bottom:-4px;background:var(--bg);border:1px solid var(--border);
-  border-radius:12px;padding:8px 12px;font-size:12px;color:var(--fg-muted);box-shadow:var(--card-shadow);
-  display:flex;align-items:center;gap:6px;
-}
-.avatar-float b{color:var(--fg)}
+.search-box:focus-within{border-color:var(--accent);outline:2px solid var(--focus,rgba(9,105,218,.3))}
+.search-box input{flex:1;min-width:0;border:0;outline:0;background:transparent;color:var(--fg);font-size:15px}
+.search-box input::placeholder{color:var(--fg-subtle)}
+.count-pill{font-size:13px;color:var(--fg-muted);background:var(--bg-subtle);border:1px solid var(--border-muted);padding:5px 12px;border-radius:999px}
 
-/* ===== Section head ===== */
-.section{padding:64px 0}
-.section-head{display:flex;align-items:center;gap:12px;margin-bottom:28px}
-.section-head .kick{
-  width:34px;height:34px;border-radius:9px;background:var(--accent-muted);color:var(--accent);
-  display:flex;align-items:center;justify-content:center;
+/* ===== Category chips ===== */
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:22px 0 4px}
+.chip{
+  display:inline-flex;align-items:center;gap:6px;height:32px;padding:0 14px;font-size:13px;font-weight:600;
+  color:var(--fg-muted);background:var(--btn-bg);border:1px solid var(--btn-border);border-radius:999px;
+  cursor:pointer;transition:all .15s;
 }
-.section-head h2{font-size:24px;font-weight:700;letter-spacing:-.01em}
-.section-head .sub{font-size:14px;color:var(--fg-subtle);margin-left:auto}
+.chip:hover{color:var(--fg);border-color:var(--border)}
+.chip.active{color:var(--accent);border-color:var(--accent);background:var(--accent-muted)}
+.chip .c-dot{width:8px;height:8px;border-radius:50%}
 
-/* ===== Branch graph ===== */
-.branch-graph-card{
-  background:var(--bg-inset);border:1px solid var(--border);border-radius:16px;padding:20px 12px 8px;margin-bottom:28px;
-  box-shadow:var(--card-shadow);
-}
-.branch-graph-card svg{width:100%;height:auto;display:block}
-.bg-line{stroke:var(--border);stroke-width:2;fill:none}
-.bg-main{stroke:var(--blue);stroke-width:2.5;fill:none}
-.bg-tools{stroke:var(--purple);stroke-width:2.5;fill:none}
-.bg-apps{stroke:var(--green);stroke-width:2.5;fill:none}
-.bg-dot{fill:var(--fg-subtle)}
-.bg-label{font-size:12px;font-family:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace}
-.fg{fill:var(--fg)}.muted{fill:var(--fg-muted)}.c-blue{fill:var(--blue)}.c-purple{fill:var(--purple)}.c-green{fill:var(--green)}
-
-/* ===== Branch cards ===== */
-.branch-grid{display:grid;grid-template-columns:1fr;gap:16px}
-@media (min-width:720px){.branch-grid{grid-template-columns:repeat(3,1fr)}}
-.bcard{
-  position:relative;display:flex;flex-direction:column;gap:14px;padding:26px 24px;border-radius:16px;
+/* ===== Tool grid ===== */
+.grid-section{padding:36px 0 72px}
+.tool-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+@media (min-width:640px){.tool-grid{grid-template-columns:repeat(3,1fr)}}
+@media (min-width:960px){.tool-grid{grid-template-columns:repeat(4,1fr)}}
+.tool{
+  position:relative;display:flex;flex-direction:column;gap:12px;padding:20px 18px;border-radius:14px;
   border:1px solid var(--border);background:var(--bg);box-shadow:var(--card-shadow);color:var(--fg);
-  transition:transform .18s,border-color .18s,box-shadow .18s;
+  cursor:pointer;text-align:left;font:inherit;text-decoration:none;transition:transform .15s,border-color .15s,box-shadow .15s;
 }
-.bcard:hover{transform:translateY(-4px);border-color:var(--accent);box-shadow:0 12px 28px rgba(31,35,40,.12);text-decoration:none}
-.bcard .b-top{display:flex;align-items:center;gap:12px}
-.bcard .b-icon{width:46px;height:46px;border-radius:12px;display:flex;align-items:center;justify-content:center;color:#fff}
-.bcard .b-tag{font-family:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace;font-size:13px;color:var(--fg-muted);background:var(--bg-subtle);border:1px solid var(--border-muted);padding:2px 10px;border-radius:999px;margin-left:auto}
-.bcard h3{font-size:22px;font-weight:700}
-.bcard .b-url{font-family:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace;font-size:13px;color:var(--fg-subtle)}
-.bcard p{font-size:14px;color:var(--fg-muted);flex:1}
-.bcard .b-go{display:inline-flex;align-items:center;gap:6px;font-size:14px;font-weight:600;color:var(--accent)}
-.bcard .b-go .arr{transition:transform .18s}
-.bcard:hover .b-go .arr{transform:translateX(4px)}
-.bcard.current{border-color:var(--accent);background:linear-gradient(180deg,var(--accent-muted),transparent 55%)}
-.bcard.current .b-tag{color:var(--accent);border-color:var(--accent);background:var(--accent-muted)}
-
-/* ===== Stats ===== */
-.stats{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
-@media (min-width:720px){.stats{grid-template-columns:repeat(3,1fr)}}
-.stat{
-  background:var(--bg-inset);border:1px solid var(--border);border-radius:14px;padding:20px;
-  display:flex;align-items:center;gap:14px;
+.tool:hover{transform:translateY(-3px);border-color:var(--accent);box-shadow:0 10px 24px rgba(31,35,40,.1);text-decoration:none}
+.tool .t-top{display:flex;align-items:center;gap:10px}
+.tool .t-icon{
+  width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;color:#fff;flex:none;
 }
-.stat .s-num{font-family:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace;font-size:30px;font-weight:700;line-height:1}
-.stat .s-num.c-blue{color:var(--blue)}.stat .s-num.c-purple{color:var(--purple)}.stat .s-num.c-green{color:var(--green)}
-.stat .s-label{font-size:13px;color:var(--fg-muted);margin-top:4px}
-
-/* ===== Plates ===== */
-.plate-grid{display:grid;grid-template-columns:1fr;gap:16px}
-@media (min-width:720px){.plate-grid{grid-template-columns:repeat(2,1fr)}}
-.plate{
-  display:flex;flex-direction:column;gap:12px;padding:26px;border-radius:16px;border:1px solid var(--border);
-  background:linear-gradient(180deg,var(--bg-subtle),var(--bg) 70%);color:var(--fg);
-  transition:transform .18s,border-color .18s;
-}
-.plate:hover{transform:translateY(-3px);border-color:var(--accent);text-decoration:none}
-.plate .p-icon{width:52px;height:52px;border-radius:14px;display:flex;align-items:center;justify-content:center;color:#fff;box-shadow:var(--card-shadow)}
-.plate h3{font-size:20px;font-weight:700}
-.plate p{font-size:14px;color:var(--fg-muted)}
-.plate .p-foot{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:600;color:var(--accent);margin-top:auto}
-
-/* ===== CTA ===== */
-.cta{
-  text-align:center;background:var(--bg-inset);border:1px solid var(--border);border-radius:20px;
-  padding:56px 24px;position:relative;overflow:hidden;
-}
-.cta:before{
-  content:"";position:absolute;inset:0;
-  background-image:radial-gradient(var(--dot) 1.2px,transparent 1.2px);background-size:24px 24px;opacity:.6;
-}
-.cta .inner{position:relative}
-.cta h2{font-size:30px;font-weight:700;letter-spacing:-.01em}
-.cta p{color:var(--fg-muted);margin:12px 0 24px}
-.cta .btns{display:flex;flex-wrap:wrap;gap:12px;justify-content:center}
+.tool .t-status{margin-left:auto;font-size:11px;font-weight:600;padding:2px 8px;border-radius:999px;white-space:nowrap}
+.tool .t-status.soon{color:var(--orange);background:color-mix(in srgb,var(--orange) 14%,transparent)}
+.tool .t-status.ready{color:var(--green);background:color-mix(in srgb,var(--green) 14%,transparent)}
+.tool h3{font-size:15px;font-weight:700;line-height:1.3}
+.tool p{font-size:13px;color:var(--fg-muted);flex:1}
+.tool .t-cat{font-family:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace;font-size:11px;color:var(--fg-subtle);display:flex;align-items:center;gap:6px}
+.tool .t-cat:before{content:"";width:6px;height:6px;border-radius:50%;background:var(--accent)}
+.tool .t-url{font-family:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace;font-size:11px;color:var(--fg-subtle);word-break:break-all;transition:color .15s}
+.tool:hover .t-url{color:var(--accent)}
+.empty-state{display:none;text-align:center;padding:60px 20px;color:var(--fg-muted);border:1px dashed var(--border);border-radius:14px}
+.empty-state.show{display:block}
+.empty-state h3{font-size:18px;color:var(--fg);margin-bottom:6px}
 
 /* ===== Footer / Toast ===== */
 footer{border-top:1px solid var(--border-muted);padding:26px 0;color:var(--fg-muted);font-size:13px}
@@ -201,7 +146,7 @@ footer{border-top:1px solid var(--border-muted);padding:26px 0;color:var(--fg-mu
   opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;z-index:99;box-shadow:0 8px 24px rgba(31,35,40,.2);
 }
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
-@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}.toast,.bcard,.plate{transition:none}}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}.toast,.tool{transition:none}}
 </style>
 </head>
 <body>
@@ -216,9 +161,9 @@ footer{border-top:1px solid var(--border-muted);padding:26px 0;color:var(--fg-mu
       cloupi.github.io
     </a>
     <nav class="nav-links" aria-label="Primary navigation">
-      <a class="btn hide-sm" href="./">Home</a>
-      <a class="btn" href="tools">Tools</a>
-      <a class="btn" href="apps">Apps</a>
+      <a class="btn hide-sm" href="../">Home</a>
+      <a class="btn active" href="./">Tools</a>
+      <a class="btn" href="../apps">Apps</a>
       <a class="btn btn-primary" href="https://github.com/cloupi" target="_blank" rel="noopener">
         <svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .3C5.9.3.9 5.3.9 11.4c0 4.9 3.2 9.1 7.6 10.6.6.1.8-.3.8-.6v-2c-3.1.7-3.7-1.5-3.7-1.5-.5-1.3-1.2-1.7-1.2-1.7-1-.7.1-.7.1-.7 1.1.1 1.7 1.1 1.7 1.1 1 1.7 2.6 1.2 3.2.9.1-.7.4-1.2.7-1.5-2.2-.3-4.6-1.1-4.6-5 0-1.1.4-2 1-2.7-.1-.3-.4-1.4.1-2.9 0 0 .9-.3 2.9 1.1.8-.2 1.7-.3 2.6-.3.9 0 1.8.1 2.6.3 2-1.4 2.9-1.1 2.9-1.1.5 1.5.2 2.6.1 2.9.6.7 1 1.6 1 2.7 0 3.9-2.4 4.7-4.6 5 .4.3.7 1 .7 2 0 1.5 0 2.6 0 3 .6.2 1.2-.8 1.2-.8 4.4-1.5 7.6-5.7 7.6-10.6C23.1 5.3 18.1.3 12 .3z"/></svg>
         GitHub
@@ -227,208 +172,49 @@ footer{border-top:1px solid var(--border-muted);padding:26px 0;color:var(--fg-mu
   </div>
 </header>
 
-<main>
-  <!-- ===== Hero ===== -->
-  <section class="hero">
-    <div class="wrap hero-inner">
-      <div>
-        <span class="hero-badge">
-          <svg class="icon" width="14" height="14" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 .6 1.5 2.5v4.9c0 4.2 2.8 7.4 6.5 8.6 3.7-1.2 6.5-4.4 6.5-8.6V2.5Zm0 1.5 5.5 1.5v4.3c0 3.5-2.2 6.1-5.5 7.3-3.3-1.2-5.5-3.8-5.5-7.3V3.6Z"/></svg>
-          Hosted on GitHub Pages
-        </span>
-        <h1>Welcome to <span class="mono">cloupi.github.io</span></h1>
-        <p class="lead">A collection of handy tools and web apps, served straight from GitHub. Three branches, one home. The theme follows your system's light or dark mode automatically.</p>
-        <div class="hero-cta">
-          <a class="btn btn-primary" href="tools">
-            <svg class="icon" width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M7.75 0a.75.75 0 0 1 .75.75V3h.634c.223-.003.443.04.642.118l.58-.58.53-.53a.75.75 0 0 1 1.061 0l2.25 2.25a.75.75 0 0 1 0 1.061l-.53.53-.58.58c.079.2.121.42.118.643V7.5H16.25a.75.75 0 0 1 0 1.5H13.83a1.768 1.768 0 0 1-.117.643l.579.58.53.53a.75.75 0 0 1 0 1.06l-2.25 2.25a.75.75 0 0 1-1.06 0l-.53-.53-.58-.58a1.768 1.768 0 0 1-.643.117H8.5v2.5a.75.75 0 0 1-1.5 0V13.83a1.768 1.768 0 0 1-.643-.117l-.58.58-.53.53a.75.75 0 0 1-1.06 0l-2.25-2.25a.75.75 0 0 1 0-1.061l.53-.53.58-.58a1.768 1.768 0 0 1-.118-.643V8.5H.75a.75.75 0 0 1 0-1.5H2.17a1.768 1.768 0 0 1 .118-.643l-.58-.58-.53-.53a.75.75 0 0 1 0-1.06l2.25-2.25a.75.75 0 0 1 1.06 0l.53.53.58.58c.2-.078.42-.121.644-.118H7V.75A.75.75 0 0 1 7.75 0Z"/></svg>
-            Explore Tools
-          </a>
-          <a class="btn" href="apps">
-            <svg class="icon" width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M1.75 3C.784 3 0 2.216 0 1.25v-.5C0 .284.784 0 1.75 0h12.5C15.216 0 16 .784 16 1.75v.5C16 3.216 15.216 4 14.25 4H1.75ZM2 8.75C2 7.784 2.784 7 3.75 7h8.5c.966 0 1.75.784 1.75 1.75v.5A1.75 1.75 0 0 1 12.25 11h-8.5A1.75 1.75 0 0 1 2 9.25Zm0 5C2 12.784 2.784 12 3.75 12h8.5c.966 0 1.75.784 1.75 1.75v.5A1.75 1.75 0 0 1 12.25 16h-8.5A1.75 1.75 0 0 1 2 14.25Z"/></svg>
-            Browse Apps
-          </a>
-        </div>
+<!-- ===== Header ===== -->
+<section class="tools-header">
+  <div class="inner">
+    <span class="header-badge">
+      <svg class="icon" width="14" height="14" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M7.75 0a.75.75 0 0 1 .75.75V3h.634c.223-.003.443.04.642.118l.58-.58.53-.53a.75.75 0 0 1 1.061 0l2.25 2.25a.75.75 0 0 1 0 1.061l-.53.53-.58.58c.079.2.121.42.118.643V7.5H16.25a.75.75 0 0 1 0 1.5H13.83a1.768 1.768 0 0 1-.117.643l.579.58.53.53a.75.75 0 0 1 0 1.06l-2.25 2.25a.75.75 0 0 1-1.06 0l-.53-.53-.58-.58a1.768 1.768 0 0 1-.643.117H8.5v2.5a.75.75 0 0 1-1.5 0V13.83a1.768 1.768 0 0 1-.643-.117l-.58.58-.53.53a.75.75 0 0 1-1.06 0l-2.25-2.25a.75.75 0 0 1 0-1.061l.53-.53.58-.58a1.768 1.768 0 0 1-.118-.643V8.5H.75a.75.75 0 0 1 0-1.5H2.17a1.768 1.768 0 0 1 .118-.643l-.58-.58-.53-.53a.75.75 0 0 1 0-1.06l2.25-2.25a.75.75 0 0 1 1.06 0l.53.53.58.58c.2-.078.42-.121.644-.118H7V.75A.75.75 0 0 1 7.75 0Z"/></svg>
+      Branch: tools
+    </span>
+    <h1>Online Tools</h1>
+    <p class="lead">A growing collection of handy utilities — downloaders, converters, calculators and more. Click any tool to try it.</p>
+    <div class="search-row">
+      <div class="search-box">
+        <svg class="icon" width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M10.68 11.74a6 6 0 0 1-7.922-8.982 6 6 0 0 1 8.982 7.922l3.04 3.04a.749.749 0 0 1-.326 1.275.749.749 0 0 1-.734-.215ZM11.5 11.5 14.53 14.53M6 10.5a4.5 4.5 0 1 0 0-9 4.5 4.5 0 0 0 0 9Z"/></svg>
+        <input id="search" type="search" placeholder="Search tools…" aria-label="Search tools">
       </div>
-      <div class="hero-side">
-        <div class="avatar-ring" aria-hidden="true">
-          <div class="inner">
-            <svg id="avatarSvg" viewBox="0 0 128 128" aria-label="cloupi logo" role="img"></svg>
-          </div>
-        </div>
-        <div class="avatar-float">
-          <svg class="icon" width="14" height="14" viewBox="0 0 16 16" fill="var(--green)" aria-hidden="true"><path d="M7.18 4.243a2.21 2.21 0 1 1 2.027 1.8c.035.828.292 1.52.766 1.95.667.61 1.736.99 3.196 1.06.052-.661.397-1.248.953-1.553a2.21 2.21 0 1 1 2.406 3.685c-.37.2-.772.273-1.18.257-.163.7-.666 1.27-1.36 1.607-.694.338-1.44.422-2.15.236-.71-.185-1.314-.61-1.76-1.237-1.28-.174-2.376-.54-3.262-1.09-.992.62-2.157.835-3.428.605a2.211 2.211 0 1 1 .087-2.56c.27.29.585.52.929.687 1.03-.25 1.79-.74 2.279-1.47.476-.71.717-1.606.724-2.687A2.21 2.21 0 0 1 7.18 4.243ZM6.5 5.9a.7.7 0 1 0 0-1.4.7.7 0 0 0 0 1.4Zm8.5 1.15a.7.7 0 1 0 0-1.4.7.7 0 0 0 0 1.4Zm.5 4.6a.7.7 0 1 0 0-1.4.7.7 0 0 0 0 1.4Z"/></svg>
-          Current branch <b class="mono">main</b>
-        </div>
-      </div>
+      <span class="count-pill" id="count">18 tools</span>
     </div>
-  </section>
-
-  <!-- ===== Branches ===== -->
-  <section class="section" id="branches">
-    <div class="wrap">
-      <div class="section-head">
-        <span class="kick">
-          <svg class="icon" width="18" height="18" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M7.18 4.243a2.21 2.21 0 1 1 2.027 1.8c.035.828.292 1.52.766 1.95.667.61 1.736.99 3.196 1.06.052-.661.397-1.248.953-1.553a2.21 2.21 0 1 1 2.406 3.685c-.37.2-.772.273-1.18.257-.163.7-.666 1.27-1.36 1.607-.694.338-1.44.422-2.15.236-.71-.185-1.314-.61-1.76-1.237-1.28-.174-2.376-.54-3.262-1.09-.992.62-2.157.835-3.428.605a2.211 2.211 0 1 1 .087-2.56c.27.29.585.52.929.687 1.03-.25 1.79-.74 2.279-1.47.476-.71.717-1.606.724-2.687A2.21 2.21 0 0 1 7.18 4.243ZM6.5 5.9a.7.7 0 1 0 0-1.4.7.7 0 0 0 0 1.4Zm8.5 1.15a.7.7 0 1 0 0-1.4.7.7 0 0 0 0 1.4Zm.5 4.6a.7.7 0 1 0 0-1.4.7.7 0 0 0 0 1.4Z"/></svg>
-        </span>
-        <h2>Branches</h2>
-        <span class="sub">3 branches · pick one to jump in</span>
-      </div>
-
-      <div class="branch-graph-card" aria-label="Branch structure diagram">
-        <svg viewBox="0 0 720 170" role="img" aria-hidden="true">
-          <path class="bg-line" d="M24 85 H696"/>
-          <path class="bg-main" d="M300 85 C300 62,300 47,300 34 H680"/>
-          <path class="bg-tools" d="M430 85 C430 108,430 123,430 136 H680"/>
-          <path class="bg-apps" d="M160 85 C160 108,160 123,160 136 H680"/>
-          <circle class="bg-dot" cx="110" cy="85" r="5"/>
-          <circle class="bg-dot" cx="190" cy="85" r="5"/>
-          <circle class="bg-dot" cx="500" cy="85" r="5"/>
-          <circle class="bg-dot" cx="590" cy="85" r="5"/>
-          <circle class="bg-dot" cx="500" cy="34" r="4"/>
-          <circle class="bg-dot" cx="500" cy="136" r="4"/>
-          <circle class="bg-tip" cx="300" cy="85" r="6" fill="var(--blue)"/>
-          <circle class="bg-tip" cx="430" cy="85" r="6" fill="var(--purple)"/>
-          <circle class="bg-tip" cx="160" cy="85" r="6" fill="var(--green)"/>
-          <circle class="bg-tip" cx="680" cy="85" r="7" fill="var(--blue)"/>
-          <circle class="bg-tip" cx="680" cy="34" r="6" fill="var(--purple)"/>
-          <circle class="bg-tip" cx="680" cy="136" r="6" fill="var(--green)"/>
-          <text class="bg-label c-blue" x="680" y="103" text-anchor="end">main (current)</text>
-          <text class="bg-label c-purple" x="680" y="26" text-anchor="end">tools</text>
-          <text class="bg-label c-green" x="680" y="156" text-anchor="end">apps</text>
-          <text class="bg-label muted" x="24" y="76" text-anchor="start">$ git branch</text>
-        </svg>
-      </div>
-
-      <div class="branch-grid">
-        <a class="bcard current" href="./">
-          <div class="b-top">
-            <span class="b-icon" style="background:var(--blue)">
-              <svg class="icon" width="22" height="22" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 .6 1.5 6.9V15h4v-4.5h5V15h4V6.9Z"/></svg>
-            </span>
-            <span class="b-tag">current</span>
-          </div>
-          <h3 class="mono">main</h3>
-          <span class="b-url">cloupi.github.io</span>
-          <p>The homepage itself — landing, navigation and site updates.</p>
-          <span class="b-go">Go to Home
-            <svg class="icon arr" width="14" height="14" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M3.47 12.53a.75.75 0 0 1 0-1.06L10.94 4H6.75a.75.75 0 0 1 0-1.5h6.5a.75.75 0 0 1 .75.75v6.5a.75.75 0 0 1-1.5 0V4.56L4.53 12.53a.75.75 0 0 1-1.06 0Z"/></svg>
-          </span>
-        </a>
-        <a class="bcard" href="tools">
-          <div class="b-top">
-            <span class="b-icon" style="background:var(--purple)">
-              <svg class="icon" width="22" height="22" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M7.75 0a.75.75 0 0 1 .75.75V3h.634c.223-.003.443.04.642.118l.58-.58.53-.53a.75.75 0 0 1 1.061 0l2.25 2.25a.75.75 0 0 1 0 1.061l-.53.53-.58.58c.079.2.121.42.118.643V7.5H16.25a.75.75 0 0 1 0 1.5H13.83a1.768 1.768 0 0 1-.117.643l.579.58.53.53a.75.75 0 0 1 0 1.06l-2.25 2.25a.75.75 0 0 1-1.06 0l-.53-.53-.58-.58a1.768 1.768 0 0 1-.643.117H8.5v2.5a.75.75 0 0 1-1.5 0V13.83a1.768 1.768 0 0 1-.643-.117l-.58.58-.53.53a.75.75 0 0 1-1.06 0l-2.25-2.25a.75.75 0 0 1 0-1.061l.53-.53.58-.58a1.768 1.768 0 0 1-.118-.643V8.5H.75a.75.75 0 0 1 0-1.5H2.17a1.768 1.768 0 0 1 .118-.643l-.58-.58-.53-.53a.75.75 0 0 1 0-1.06l2.25-2.25a.75.75 0 0 1 1.06 0l.53.53.58.58c.2-.078.42-.121.644-.118H7V.75A.75.75 0 0 1 7.75 0Z"/></svg>
-            </span>
-            <span class="b-tag">branch</span>
-          </div>
-          <h3 class="mono">tools</h3>
-          <span class="b-url">cloupi.github.io/tools</span>
-          <p>Handy online utilities — converters, calculators, formatters and more.</p>
-          <span class="b-go">Go to Tools
-            <svg class="icon arr" width="14" height="14" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M3.47 12.53a.75.75 0 0 1 0-1.06L10.94 4H6.75a.75.75 0 0 1 0-1.5h6.5a.75.75 0 0 1 .75.75v6.5a.75.75 0 0 1-1.5 0V4.56L4.53 12.53a.75.75 0 0 1-1.06 0Z"/></svg>
-          </span>
-        </a>
-        <a class="bcard" href="apps">
-          <div class="b-top">
-            <span class="b-icon" style="background:var(--green)">
-              <svg class="icon" width="22" height="22" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M1.75 3C.784 3 0 2.216 0 1.25v-.5C0 .284.784 0 1.75 0h12.5C15.216 0 16 .784 16 1.75v.5C16 3.216 15.216 4 14.25 4H1.75ZM2 8.75C2 7.784 2.784 7 3.75 7h8.5c.966 0 1.75.784 1.75 1.75v.5A1.75 1.75 0 0 1 12.25 11h-8.5A1.75 1.75 0 0 1 2 9.25Zm0 5C2 12.784 2.784 12 3.75 12h8.5c.966 0 1.75.784 1.75 1.75v.5A1.75 1.75 0 0 1 12.25 16h-8.5A1.75 1.75 0 0 1 2 14.25Z"/></svg>
-            </span>
-            <span class="b-tag">branch</span>
-          </div>
-          <h3 class="mono">apps</h3>
-          <span class="b-url">cloupi.github.io/apps</span>
-          <p>Full web apps and live demos, ready to try right in the browser.</p>
-          <span class="b-go">Go to Apps
-            <svg class="icon arr" width="14" height="14" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M3.47 12.53a.75.75 0 0 1 0-1.06L10.94 4H6.75a.75.75 0 0 1 0-1.5h6.5a.75.75 0 0 1 .75.75v6.5a.75.75 0 0 1-1.5 0V4.56L4.53 12.53a.75.75 0 0 1-1.06 0Z"/></svg>
-          </span>
-        </a>
-      </div>
+    <div class="chips" id="chips" role="tablist" aria-label="Filter by category">
+      <button class="chip active" data-cat="all" role="tab" aria-selected="true"><span class="c-dot" style="background:var(--accent)"></span>All</button>
+      <button class="chip" data-cat="Video" role="tab" aria-selected="false"><span class="c-dot" style="background:var(--blue)"></span>Video &amp; Download</button>
+      <button class="chip" data-cat="Calculator" role="tab" aria-selected="false"><span class="c-dot" style="background:var(--green)"></span>Calculators</button>
+      <button class="chip" data-cat="Image" role="tab" aria-selected="false"><span class="c-dot" style="background:var(--purple)"></span>Image</button>
+      <button class="chip" data-cat="Text & Data" role="tab" aria-selected="false"><span class="c-dot" style="background:var(--orange)"></span>Text &amp; Data</button>
+      <button class="chip" data-cat="Security & More" role="tab" aria-selected="false"><span class="c-dot" style="background:var(--red)"></span>Security &amp; More</button>
     </div>
-  </section>
+  </div>
+</section>
 
-  <!-- ===== Stats ===== -->
-  <section class="section" style="padding-top:0">
-    <div class="wrap">
-      <div class="section-head">
-        <span class="kick">
-          <svg class="icon" width="18" height="18" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M2 14V2h1.5v12H2Zm3 0V6h1.5v8H5Zm3 0V9h1.5v5H8Zm3 0V4h1.5v10H11Z"/></svg>
-        </span>
-        <h2>Site at a glance</h2>
-      </div>
-      <div class="stats">
-        <div class="stat">
-          <span class="s-num c-blue">3</span>
-          <span><span class="s-label" style="display:block;font-size:15px;font-weight:600;color:var(--fg)">Branches</span><span class="s-label">main · tools · apps</span></span>
-        </div>
-        <div class="stat">
-          <span class="s-num c-purple">2</span>
-          <span><span class="s-label" style="display:block;font-size:15px;font-weight:600;color:var(--fg)">Sections</span><span class="s-label">Tools &amp; apps collection</span></span>
-        </div>
-        <div class="stat">
-          <span class="s-num c-green">∞</span>
-          <span><span class="s-label" style="display:block;font-size:15px;font-weight:600;color:var(--fg)">Hosting</span><span class="s-label">Free, powered by GitHub Pages</span></span>
-        </div>
-      </div>
+<!-- ===== Tool grid ===== -->
+<section class="grid-section">
+  <div class="wrap">
+    <div class="tool-grid" id="grid" aria-label="Tool list"></div>
+    <div class="empty-state" id="empty">
+      <h3>No tools found</h3>
+      <p>Try a different keyword or category.</p>
     </div>
-  </section>
-
-  <!-- ===== Sections ===== -->
-  <section class="section" style="padding-top:0">
-    <div class="wrap">
-      <div class="section-head">
-        <span class="kick">
-          <svg class="icon" width="18" height="18" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M1.75 3C.784 3 0 2.216 0 1.25v-.5C0 .284.784 0 1.75 0h12.5C15.216 0 16 .784 16 1.75v.5C16 3.216 15.216 4 14.25 4H1.75ZM2 8.75C2 7.784 2.784 7 3.75 7h8.5c.966 0 1.75.784 1.75 1.75v.5A1.75 1.75 0 0 1 12.25 11h-8.5A1.75 1.75 0 0 1 2 9.25Zm0 5C2 12.784 2.784 12 3.75 12h8.5c.966 0 1.75.784 1.75 1.75v.5A1.75 1.75 0 0 1 12.25 16h-8.5A1.75 1.75 0 0 1 2 14.25Z"/></svg>
-        </span>
-        <h2>What's inside</h2>
-        <span class="sub">Updated regularly</span>
-      </div>
-      <div class="plate-grid">
-        <a class="plate" href="tools">
-          <span class="p-icon" style="background:linear-gradient(135deg,var(--purple),var(--blue))">
-            <svg class="icon" width="26" height="26" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M7.75 0a.75.75 0 0 1 .75.75V3h.634c.223-.003.443.04.642.118l.58-.58.53-.53a.75.75 0 0 1 1.061 0l2.25 2.25a.75.75 0 0 1 0 1.061l-.53.53-.58.58c.079.2.121.42.118.643V7.5H16.25a.75.75 0 0 1 0 1.5H13.83a1.768 1.768 0 0 1-.117.643l.579.58.53.53a.75.75 0 0 1 0 1.06l-2.25 2.25a.75.75 0 0 1-1.06 0l-.53-.53-.58-.58a1.768 1.768 0 0 1-.643.117H8.5v2.5a.75.75 0 0 1-1.5 0V13.83a1.768 1.768 0 0 1-.643-.117l-.58.58-.53.53a.75.75 0 0 1-1.06 0l-2.25-2.25a.75.75 0 0 1 0-1.061l.53-.53.58-.58a1.768 1.768 0 0 1-.118-.643V8.5H.75a.75.75 0 0 1 0-1.5H2.17a1.768 1.768 0 0 1 .118-.643l-.58-.58-.53-.53a.75.75 0 0 1 0-1.06l2.25-2.25a.75.75 0 0 1 1.06 0l.53.53.58.58c.2-.078.42-.121.644-.118H7V.75A.75.75 0 0 1 7.75 0Z"/></svg>
-          </span>
-          <h3 class="mono">tools</h3>
-          <p>A growing set of lightweight online utilities. No installs, no sign-ups — just open and use.</p>
-          <span class="p-foot">cloupi.github.io/tools
-            <svg class="icon" width="14" height="14" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M3.47 12.53a.75.75 0 0 1 0-1.06L10.94 4H6.75a.75.75 0 0 1 0-1.5h6.5a.75.75 0 0 1 .75.75v6.5a.75.75 0 0 1-1.5 0V4.56L4.53 12.53a.75.75 0 0 1-1.06 0Z"/></svg>
-          </span>
-        </a>
-        <a class="plate" href="apps">
-          <span class="p-icon" style="background:linear-gradient(135deg,var(--green),var(--blue))">
-            <svg class="icon" width="26" height="26" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M1.75 3C.784 3 0 2.216 0 1.25v-.5C0 .284.784 0 1.75 0h12.5C15.216 0 16 .784 16 1.75v.5C16 3.216 15.216 4 14.25 4H1.75ZM2 8.75C2 7.784 2.784 7 3.75 7h8.5c.966 0 1.75.784 1.75 1.75v.5A1.75 1.75 0 0 1 12.25 11h-8.5A1.75 1.75 0 0 1 2 9.25Zm0 5C2 12.784 2.784 12 3.75 12h8.5c.966 0 1.75.784 1.75 1.75v.5A1.75 1.75 0 0 1 12.25 16h-8.5A1.75 1.75 0 0 1 2 14.25Z"/></svg>
-          </span>
-          <h3 class="mono">apps</h3>
-          <p>Complete applications with live demos you can try directly in your browser.</p>
-          <span class="p-foot">cloupi.github.io/apps
-            <svg class="icon" width="14" height="14" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M3.47 12.53a.75.75 0 0 1 0-1.06L10.94 4H6.75a.75.75 0 0 1 0-1.5h6.5a.75.75 0 0 1 .75.75v6.5a.75.75 0 0 1-1.5 0V4.56L4.53 12.53a.75.75 0 0 1-1.06 0Z"/></svg>
-          </span>
-        </a>
-      </div>
-    </div>
-  </section>
-
-  <!-- ===== CTA ===== -->
-  <section class="section" style="padding-top:0">
-    <div class="wrap">
-      <div class="cta">
-        <div class="inner">
-          <h2>Pick a branch and jump in</h2>
-          <p>Tools and apps are organized — one click and you're there.</p>
-          <div class="btns">
-            <a class="btn btn-primary" href="tools">Go to cloupi.github.io/tools</a>
-            <a class="btn" href="apps">Go to cloupi.github.io/apps</a>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-</main>
+  </div>
+</section>
 
 <footer>
   <div class="wrap foot-inner">
     <span>© 2026 cloupi · Powered by <a href="https://pages.github.com" target="_blank" rel="noopener">GitHub Pages</a></span>
     <span>
-      <a href="https://cloupi.github.io" target="_blank" rel="noopener">cloupi.github.io</a> ·
+      <a href="../">cloupi.github.io</a> ·
       <a href="https://github.com/cloupi" target="_blank" rel="noopener">github.com/cloupi</a>
     </span>
   </div>
@@ -439,24 +225,91 @@ footer{border-top:1px solid var(--border-muted);padding:26px 0;color:var(--fg-mu
 <script>
 (function(){
   'use strict';
-  /* Identicon logo (deterministic from "cloupi") */
-  var seed='cloupi',h=0,i;
-  for(i=0;i<seed.length;i++){h=(h*31+seed.charCodeAt(i))>>>0;}
-  function rnd(n){h=(h*1664525+1013904223)>>>0;return h%n;}
-  var size=7,half=Math.ceil(size/2),grid=[],r,c;
-  for(r=0;r<size;r++){
-    var row=[];
-    for(c=0;c<half;c++){row.push(rnd(4));}
-    for(c=half;c<size;c++){row.push(row[size-1-c]);}
-    grid.push(row);
+  var toastEl=document.getElementById('toast');
+  function toast(msg){toastEl.textContent=msg;toastEl.classList.add('show');clearTimeout(toastEl._h);toastEl._h=setTimeout(function(){toastEl.classList.remove('show');},2400);}
+
+  /* Tool catalog */
+  var CATS={
+    'Video & Download':{color:'var(--blue)'},
+    'Calculator':{color:'var(--green)'},
+    'Image':{color:'var(--purple)'},
+    'Text & Data':{color:'var(--orange)'},
+    'Security & More':{color:'var(--red)'}
+  };
+  var ICONS={
+    download:'<path d="M8 1a.75.75 0 0 1 .75.75v5.19l1.97-1.97a.75.75 0 1 1 1.06 1.06l-3.25 3.25a.75.75 0 0 1-1.06 0L4.22 6.03a.75.75 0 1 1 1.06-1.06L7.25 6.94V1.75A.75.75 0 0 1 8 1Zm-4.5 9.75A1.75 1.75 0 0 0 1.75 12.5v1c0 .966.784 1.75 1.75 1.75h9c.966 0 1.75-.784 1.75-1.75v-1a1.75 1.75 0 0 0-1.75-1.75h-1.25a.75.75 0 0 0 0 1.5h1.25a.25.25 0 0 1 .25.25v1a.25.25 0 0 1-.25.25h-9a.25.25 0 0 1-.25-.25v-1a.25.25 0 0 1 .25-.25h1.25a.75.75 0 0 0 0-1.5Z"/>',
+    play:'<path d="M4.2 2.8 12.6 8l-8.4 5.2Z"/>',
+    fileplay:'<path d="M2 1.75C2 .784 2.784 0 3.75 0h4.586c.464 0 .909.184 1.237.513l4.914 4.914c.329.328.513.773.513 1.237V14.25c0 .966-.784 1.75-1.75 1.75H3.75A1.75 1.75 0 0 1 2 14.25Zm7.5.427v3.573h3.573ZM5.5 8.4l4.5 2.4-4.5 2.4Z"/>',
+    calc:'<rect x="2" y="1.5" width="12" height="13" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M5 5h6M5 8h6M5 11h2.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>',
+    units:'<path d="M1 8h9.19L8.22 6.03a.75.75 0 1 1 1.06-1.06l3.25 3.25a.75.75 0 0 1 0 1.06l-3.25 3.25a.75.75 0 1 1-1.06-1.06L10.19 9H1Z"/><path d="M1 3.5h6v1H1zM1 11.5h6v1H1z"/>',
+    pct:'<path d="M2.5 3.5 13.5 12.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="4.5" cy="4.5" r="1.4" fill="currentColor"/><circle cx="11.5" cy="11.5" r="1.4" fill="currentColor"/>',
+    calendar:'<path d="M2 2.5A1.5 1.5 0 0 1 3.5 1h9A1.5 1.5 0 0 1 14 2.5v10a1.5 1.5 0 0 1-1.5 1.5h-9A1.5 1.5 0 0 1 2 12.5ZM3.5 2a.5.5 0 0 0-.5.5V4h10V2.5a.5.5 0 0 0-.5-.5ZM3 5v7.5a.5.5 0 0 0 .5.5h9a.5.5 0 0 0 .5-.5V5Zm3 2h4v1H6z"/>',
+    image:'<rect x="1" y="2.5" width="14" height="11" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="5" cy="6.5" r="1.5" fill="currentColor"/><path d="m14.5 12-3.5-4.5-3 3.5-2-2.5L3 12.5" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/>',
+    qr:'<path d="M1 1h5v5H1zm1 1v3h3V2zm5-1h5v5H7zm1 1v3h3V3zM1 10h5v5H1zm1 1v3h3v-3zm5 0h1.5v1.5H7zm3 0h1.5v1.5H10zM7 14h1.5V15H7zm3 0h1.5V15H10zm1.5-4H13v1.5h-1.5zm0 3H13V15h-1.5z"/>',
+    color:'<circle cx="8" cy="8" r="6" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M8 2a6 6 0 0 0-6 6h12A6 6 0 0 0 8 2Z"/><circle cx="8" cy="8" r="1.6" fill="currentColor"/>',
+    braces:'<path d="M6 3a2 2 0 0 0-2 2v1.5A1.5 1.5 0 0 1 2.5 8 1.5 1.5 0 0 1 4 9.5V11a2 2 0 0 0 2 2m4-10a2 2 0 0 1 2 2v1.5a1.5 1.5 0 0 0 1.5 1.5A1.5 1.5 0 0 0 12 9.5V11a2 2 0 0 1-2 2" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>',
+    b64:'<rect x="3" y="2" width="10" height="12" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.5"/><text x="8" y="10.5" text-anchor="middle" font-size="7" font-weight="700" fill="currentColor">64</text>',
+    md:'<path d="M2 4h12v8H2zm2 1v6h1.4l1.6-2.2 1.6 2.2H10V5H8.5v2.8L7 5H5.5v2.8L4 7.8V5z"/>',
+    tts:'<path d="M2 6h2.5L8 2.5v11L4.5 10H2Z" fill="currentColor"/><path d="M10 5.5a3.5 3.5 0 0 1 0 5M11.8 3.8a6 6 0 0 1 0 8.4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>',
+    lock:'<rect x="3.5" y="7" width="9" height="7" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M5.5 7V5a2.5 2.5 0 0 1 5 0v2" fill="none" stroke="currentColor" stroke-width="1.5"/>',
+    file:'<path d="M2 1.75C2 .784 2.784 0 3.75 0h4.586c.464 0 .909.184 1.237.513l4.914 4.914c.329.328.513.773.513 1.237V14.25c0 .966-.784 1.75-1.75 1.75H3.75A1.75 1.75 0 0 1 2 14.25Zm7.5.427v3.573h3.573ZM6 8h4a.75.75 0 0 1 0 1.5H6A.75.75 0 0 1 6 8Zm0 3h4a.75.75 0 0 1 0 1.5H6A.75.75 0 0 1 6 11Z"/>',
+    clock:'<circle cx="8" cy="8" r="6.5" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M8 4.5V8l2.5 1.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>'
+  };
+  var TOOLS=[
+    {n:'Bilibili Downloader',d:'Download videos from Bilibili in HD.',c:'Video & Download',i:'download',s:'bilibilidownloader'},
+    {n:'YouTube Downloader',d:'Grab YouTube videos in any quality.',c:'Video & Download',i:'download',s:'youtubedownloader'},
+    {n:'Any File to MP4',d:'Convert any file into MP4 format.',c:'Video & Download',i:'fileplay',s:'anyfiletomp4'},
+    {n:'Video Compressor',d:'Shrink video file sizes with quality control.',c:'Video & Download',i:'play',s:'videocompressor'},
+    {n:'Calculator',d:'Basic and scientific calculations.',c:'Calculator',i:'calc',ready:true,s:'calculator'},
+    {n:'Unit Converter',d:'Length, weight, temperature and more.',c:'Calculator',i:'units',s:'unitconverter'},
+    {n:'Tip Calculator',d:'Split bills and calculate tips.',c:'Calculator',i:'pct',s:'tipcalculator'},
+    {n:'Age Calculator',d:'Days, months and years lived.',c:'Calculator',i:'calendar',s:'agecalculator'},
+    {n:'Image Compressor',d:'Reduce image size without losing quality.',c:'Image',i:'image',s:'imagecompressor'},
+    {n:'QR Code Generator',d:'Create QR codes instantly from text.',c:'Image',i:'qr',s:'qrcodegenerator'},
+    {n:'Color Picker',d:'Pick and convert colors in any format.',c:'Image',i:'color',s:'colorpicker'},
+    {n:'JSON Formatter',d:'Beautify, validate and minify JSON.',c:'Text & Data',i:'braces',s:'jsonformatter'},
+    {n:'Base64 Encoder',d:'Encode and decode Base64 strings.',c:'Text & Data',i:'b64',s:'base64encoder'},
+    {n:'Markdown Editor',d:'Write with a live Markdown preview.',c:'Text & Data',i:'md',s:'markdowneditor'},
+    {n:'Text to Speech',d:'Read text aloud in multiple voices.',c:'Text & Data',i:'tts',s:'texttospeech'},
+    {n:'Password Generator',d:'Create strong, random passwords.',c:'Security & More',i:'lock',s:'passwordgenerator'},
+    {n:'PDF Tools',d:'Merge, split, compress and convert PDFs.',c:'Security & More',i:'file',s:'pdftools'},
+    {n:'Timer & Stopwatch',d:'Countdown and elapsed time tracking.',c:'Security & More',i:'clock',s:'timerstopwatch'}
+  ];
+
+  var grid=document.getElementById('grid'),count=document.getElementById('count'),
+      search=document.getElementById('search'),empty=document.getElementById('empty'),
+      chips=document.querySelectorAll('.chip'),activeCat='all';
+
+  function render(){
+    var q=search.value.trim().toLowerCase(),html='',shown=0;
+    TOOLS.forEach(function(t){
+      var okCat=activeCat==='all'||t.c===activeCat;
+      var okQ=!q||(t.n+' '+t.d+' '+t.c).toLowerCase().indexOf(q)>-1;
+      if(!okCat||!okQ)return;
+      shown++;
+      var catColor=CATS[t.c].color;
+      var status=t.ready?'<span class="t-status ready">Ready</span>':'<span class="t-status soon">Soon</span>';
+      html+='<a class="tool" href="'+t.s+'" aria-label="'+t.n+'">'
+        +'<span class="t-top"><span class="t-icon" style="background:'+catColor+'"><svg class="icon" width="20" height="20" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">'+ICONS[t.i]+'</svg></span>'+status+'</span>'
+        +'<h3>'+t.n+'</h3><p>'+t.d+'</p>'
+        +'<span class="t-cat">'+t.c+'</span>'
+        +'<span class="t-url">/tools/'+t.s+'</span></a>';
+    });
+    grid.innerHTML=html;
+    count.textContent=shown+(shown>1?' tools':' tool');
+    empty.classList.toggle('show',shown===0);
   }
-  var svg=document.getElementById('avatarSvg'),CELL=16,PAD=8,S=size*CELL+2*PAD,cells='';
-  svg.setAttribute('viewBox','0 0 '+S+' '+S);
-  for(r=0;r<size;r++)for(c=0;c<size;c++){
-    var k=grid[r][c];if(k===0)continue;
-    cells+='<rect x="'+(PAD+c*CELL)+'" y="'+(PAD+r*CELL)+'" width="'+CELL+'" height="'+CELL+'" rx="3" fill="var(--accent)"/>';
-  }
-  svg.innerHTML=cells;
+
+  chips.forEach(function(chip){
+    chip.addEventListener('click',function(){
+      chips.forEach(function(c){c.classList.remove('active');c.setAttribute('aria-selected','false');});
+      chip.classList.add('active');chip.setAttribute('aria-selected','true');
+      activeCat=chip.getAttribute('data-cat');
+      render();
+    });
+  });
+  search.addEventListener('input',render);
+  render();
 })();
 </script>
 </body>
