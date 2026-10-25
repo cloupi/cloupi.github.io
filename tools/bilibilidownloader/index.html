@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="Bilibili Downloader - resolve and download Bilibili videos, choose quality, frame rate and speed.">
+<title>Bilibili Downloader · cloupi.github.io</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><rect width='24' height='24' rx='5' fill='white'/><path fill='%231f2328' d='M12 .3C5.9.3.9 5.3.9 11.4c0 4.9 3.2 9.1 7.6 10.6.6.1.8-.3.8-.6v-2c-3.1.7-3.7-1.5-3.7-1.5-.5-1.3-1.2-1.7-1.2-1.7-1-.7.1-.7.1-.7 1.1.1 1.7 1.1 1.7 1.1 1 1.7 2.6 1.2 3.2.9.1-.7.4-1.2.7-1.5-2.2-.3-4.6-1.1-4.6-5 0-1.1.4-2 1-2.7-.1-.3-.4-1.4.1-2.9 0 0 .9-.3 2.9 1.1.8-.2 1.7-.3 2.6-.3.9 0 1.8.1 2.6.3 2-1.4 2.9-1.1 2.9-1.1.5 1.5.2 2.6.1 2.9.6.7 1 1.6 1 2.7 0 3.9-2.4 4.7-4.6 5 .4.3.7 1 .7 2 0 1.5 0 2.6 0 3 .6.2 1.2-.8 1.2-.8 4.4-1.5 7.6-5.7 7.6-10.6C23.1 5.3 18.1 3 12 .3z'/></svg>">
+<style>
+/* ===== GitHub Primer palette, follows system color scheme ===== */
+:root{
+  color-scheme: light dark;
+  --bg:#ffffff; --bg-subtle:#f6f8fa; --bg-muted:#eaeef2; --bg-inset:#f6f8fa;
+  --border:#d0d7de; --border-muted:#d8dee4;
+  --fg:#1f2328; --fg-muted:#59636e; --fg-subtle:#6e7781;
+  --accent:#0969da; --accent-hover:#0550ae; --accent-muted:rgba(9,105,218,.10);
+  --green:#1a7f37; --orange:#bf8700; --red:#cf222e;
+  --dot:rgba(31,35,40,.07);
+  --card-shadow:0 1px 0 rgba(31,35,40,.04),0 6px 16px rgba(31,35,40,.06);
+  --btn-bg:#f6f8fa; --btn-border:#d0d7de;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    color-scheme: dark;
+    --bg:#0d1117; --bg-subtle:#161b22; --bg-muted:#21262d; --bg-inset:#151b23;
+    --border:#30363d; --border-muted:#21262d;
+    --fg:#e6edf3; --fg-muted:#9198a1; --fg-subtle:#7d8590;
+    --accent:#4493f8; --accent-hover:#79c0ff; --accent-muted:rgba(56,139,253,.14);
+    --green:#3fb950; --orange:#d29922; --red:#f85149;
+    --dot:rgba(230,237,243,.08);
+    --card-shadow:0 1px 0 rgba(1,4,9,.4),0 6px 16px rgba(1,4,9,.4);
+    --btn-bg:#21262d; --btn-border:#30363d;
+  }
+}
+*{box-sizing:border-box;margin:0;padding:0}
+[hidden]{display:none!important}
+html{scroll-behavior:smooth}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans",Helvetica,Arial,sans-serif;
+  font-size:15px;line-height:1.6;color:var(--fg);background:var(--bg);
+}
+a{color:var(--accent);text-decoration:none}
+.wrap{max-width:1080px;margin:0 auto;padding:0 20px;min-width:0}
+.icon{flex:none}
+.btn{
+  display:inline-flex;align-items:center;gap:6px;padding:6px 14px;font-size:13px;line-height:20px;
+  font-weight:600;border:1px solid var(--btn-border);border-radius:6px;background:var(--btn-bg);color:var(--fg);
+  cursor:pointer;white-space:nowrap;min-width:0;
+}
+.btn:hover{background:var(--bg-muted)}
+.btn-primary{background:var(--green);border-color:var(--green);color:#fff}
+.btn-primary:hover{background:var(--green)}
+.btn-accent{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn-accent:hover{background:var(--accent-hover);border-color:var(--accent-hover)}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.btn.active{background:var(--accent);border-color:var(--accent);color:#fff}
+/* ===== Header ===== */
+.site-header{
+  position:sticky;top:0;z-index:50;background:color-mix(in srgb,var(--bg) 88%,transparent);
+  backdrop-filter:blur(8px);border-bottom:1px solid var(--border-muted);
+}
+.nav-inner{display:flex;align-items:center;gap:16px;height:60px}
+.brand{display:inline-flex;align-items:center;gap:8px;font-weight:600;font-size:14px;color:var(--fg);min-width:0}
+.brand .mark{display:inline-flex;padding:5px;border-radius:8px;background:var(--bg-muted);border:1px solid var(--border-muted)}
+.nav-links{display:flex;align-items:center;gap:8px;margin-left:auto;min-width:0}
+/* ===== Tool header ===== */
+.tool-header{border-bottom:1px solid var(--border-muted);background:var(--bg-subtle)}
+.tool-header .inner{max-width:1080px;margin:0 auto;padding:44px 20px 40px;min-width:0}
+.header-badge{
+  display:inline-flex;align-items:center;gap:8px;font-size:12px;font-weight:600;color:var(--fg-muted);
+  padding:3px 10px;border:1px solid var(--border);border-radius:999px;background:var(--bg);min-width:0;
+}
+.tool-header h1{margin:14px 0 8px;font-size:34px;line-height:1.25;letter-spacing:-.02em;min-width:0}
+.lead{color:var(--fg-muted);font-size:16px;max-width:640px;min-width:0}
+.back{display:inline-flex;align-items:center;gap:6px;margin-top:18px;font-size:13px;font-weight:600;color:var(--fg-muted);min-width:0}
+.back:hover{color:var(--accent)}
+/* ===== Layout ===== */
+.page{background:var(--bg)}
+.content-wrap{display:grid;grid-template-columns:minmax(0,1fr);gap:24px;align-items:start;padding:28px 0 64px;min-width:0}
+@media (min-width:900px){.content-wrap{grid-template-columns:minmax(0,1fr) minmax(0,340px)}}
+.card{
+  background:var(--bg);border:1px solid var(--border);border-radius:18px;box-shadow:var(--card-shadow);
+  padding:22px;margin-bottom:24px;min-width:0;
+}
+.card h2{font-size:15px;font-weight:600;margin-bottom:14px;min-width:0}
+.card .sub{font-size:12.5px;color:var(--fg-subtle);margin-top:8px;line-height:1.5;min-width:0}
+/* ===== Input card ===== */
+.field-label{display:block;font-size:12.5px;font-weight:600;color:var(--fg-muted);margin-bottom:6px}
+.url-row{display:flex;gap:8px;min-width:0}
+.url-row input{
+  flex:1;min-width:0;padding:9px 12px;font-size:14px;color:var(--fg);background:var(--bg-inset);
+  border:1px solid var(--border);border-radius:8px;outline:none;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+}
+.url-row input:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-muted)}
+.sample-row{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;min-width:0}
+.sample{font-size:12px;color:var(--accent);border:1px solid var(--border-muted);background:var(--bg-subtle);border-radius:999px;padding:2px 10px;cursor:pointer;min-width:0}
+.sample:hover{background:var(--accent-muted);border-color:var(--accent)}
+.state-line{display:flex;align-items:center;gap:8px;margin-top:12px;font-size:13px;color:var(--fg-muted);min-width:0}
+.spin{width:14px;height:14px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:sp 1s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+.state-line .ok{color:var(--green);font-weight:600}
+.state-line .err{color:var(--red);font-weight:600}
+/* ===== Video card ===== */
+.v-head{display:flex;gap:14px;align-items:flex-start;min-width:0}
+.v-cover{width:150px;min-width:150px;aspect-ratio:16/10;object-fit:cover;border-radius:10px;border:1px solid var(--border);background:var(--bg-muted)}
+.v-title{font-size:16px;font-weight:600;line-height:1.4;margin-bottom:6px;min-width:0}
+.v-meta{font-size:12.5px;color:var(--fg-subtle);line-height:1.7;min-width:0}
+.v-meta b{color:var(--fg-muted);font-weight:600}
+.opt-group{margin-top:18px;min-width:0}
+.opt-label{display:flex;align-items:center;gap:8px;font-size:12.5px;font-weight:600;color:var(--fg-muted);margin-bottom:8px;min-width:0}
+.opt-label .hint{font-weight:400;color:var(--fg-subtle)}
+.chips{display:flex;flex-wrap:wrap;gap:8px;min-width:0}
+.chip{
+  padding:5px 12px;font-size:13px;font-weight:600;border:1px solid var(--border);border-radius:8px;
+  background:var(--bg-subtle);color:var(--fg);cursor:pointer;min-width:0;
+}
+.chip:hover{border-color:var(--accent)}
+.chip.active{background:var(--accent);border-color:var(--accent);color:#fff}
+.chip:disabled{opacity:.4;cursor:not-allowed}
+.preview{margin-top:18px;min-width:0}
+.preview video{width:100%;min-width:0;border-radius:10px;background:#000;border:1px solid var(--border);max-height:340px}
+.speed-row{display:flex;align-items:center;gap:6px;margin-top:8px;min-width:0}
+.speed-row .tag{font-size:12px;color:var(--fg-subtle);font-weight:600;margin-right:2px}
+.speed-btn{padding:3px 10px;font-size:12px;font-weight:600;border:1px solid var(--border);border-radius:6px;background:var(--bg-subtle);color:var(--fg);cursor:pointer;min-width:0}
+.speed-btn.active{background:var(--accent);border-color:var(--accent);color:#fff}
+.dl-row{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:18px;min-width:0}
+.dl-row .btn{font-size:13px;padding:8px 18px}
+.dl-notes{margin-top:8px;font-size:12px;color:var(--fg-subtle);min-width:0}
+/* progress */
+.bar{height:8px;border-radius:999px;background:var(--bg-muted);overflow:hidden;margin-top:10px;min-width:0}
+.bar-fill{height:100%;width:0;background:var(--green);border-radius:999px;transition:width .2s}
+.dl-log{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:12px;color:var(--fg-muted);margin-top:8px;word-break:break-word;min-width:0}
+/* command box */
+.cmd-box{margin-top:14px;min-width:0}
+.cmd-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;min-width:0}
+.cmd-head .t{font-size:12px;font-weight:600;color:var(--fg-muted)}
+.copy-btn{font-size:11.5px;padding:2px 10px;border:1px solid var(--border);border-radius:6px;background:var(--bg-subtle);color:var(--fg);cursor:pointer;min-width:0}
+.copy-btn:hover{border-color:var(--accent)}
+pre.code{
+  font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:11.5px;line-height:1.5;color:var(--fg);
+  background:var(--bg-inset);border:1px solid var(--border-muted);border-radius:8px;padding:10px 12px;
+  overflow-x:auto;white-space:pre-wrap;word-break:break-all;min-width:0;
+}
+/* ===== Side cards ===== */
+.setting-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 0;border-bottom:1px solid var(--border-muted);min-width:0}
+.setting-row:last-child{border-bottom:none}
+.setting-row .lbl{font-size:13px;font-weight:600;min-width:0}
+.setting-row .lbl small{display:block;font-weight:400;color:var(--fg-subtle);font-size:11.5px}
+.switch{position:relative;width:36px;height:20px;flex:none;cursor:pointer}
+.switch input{opacity:0;width:0;height:0}
+.slider{position:absolute;inset:0;background:var(--border);border-radius:999px;transition:.15s}
+.slider:before{content:"";position:absolute;width:14px;height:14px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.15s}
+.switch input:checked+.slider{background:var(--green)}
+.switch input:checked+.slider:before{transform:translateX(16px)}
+select.sel{
+  width:100%;padding:8px 10px;font-size:13px;color:var(--fg);background:var(--bg-inset);
+  border:1px solid var(--border);border-radius:8px;outline:none;margin-top:6px;min-width:0;
+}
+select.sel:focus{border-color:var(--accent)}
+.proxy-hint{font-size:11.5px;color:var(--fg-subtle);margin-top:6px;line-height:1.5;min-width:0}
+.hist-item{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border-muted);min-width:0}
+.hist-item:last-child{border-bottom:none}
+.hist-item .t{flex:1;min-width:0;font-size:12.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hist-item .m{font-size:11px;color:var(--fg-subtle);flex:none}
+.hist-item button{flex:none;font-size:11px;padding:2px 8px;border:1px solid var(--border);border-radius:6px;background:var(--bg-subtle);color:var(--fg);cursor:pointer;min-width:0}
+.empty{font-size:13px;color:var(--fg-subtle);padding:8px 0;min-width:0}
+/* ===== Footer ===== */
+footer{border-top:1px solid var(--border-muted);background:var(--bg-subtle)}
+.foot{max-width:1080px;margin:0 auto;padding:24px 20px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between;font-size:12.5px;color:var(--fg-subtle);min-width:0}
+.foot a{color:var(--fg-muted);font-weight:600}
+@media (max-width:640px){
+  .hide-sm{display:none!important}
+  .tool-header h1{font-size:26px}
+  .v-head{flex-direction:column}
+  .v-cover{width:100%;min-width:0}
+}
+</style>
+</head>
+<body>
+
+<!-- ===== Header ===== -->
+<header class="site-header">
+  <div class="wrap nav-inner">
+    <a class="brand" href="../../">
+      <span class="mark">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .3C5.9.3.9 5.3.9 11.4c0 4.9 3.2 9.1 7.6 10.6.6.1.8-.3.8-.6v-2c-3.1.7-3.7-1.5-3.7-1.5-.5-1.3-1.2-1.7-1.2-1.7-1-.7.1-.7.1-.7 1.1.1 1.7 1.1 1.7 1.1 1 1.7 2.6 1.2 3.2.9.1-.7.4-1.2.7-1.5-2.2-.3-4.6-1.1-4.6-5 0-1.1.4-2 1-2.7-.1-.3-.4-1.4.1-2.9 0 0 .9-.3 2.9 1.1.8-.2 1.7-.3 2.6-.3.9 0 1.8.1 2.6.3 2-1.4 2.9-1.1 2.9-1.1.5 1.5.2 2.6.1 2.9.6.7 1 1.6 1 2.7 0 3.9-2.4 4.7-4.6 5 .4.3.7 1 .7 2 0 1.5 0 2.6 0 3 .6.2 1.2-.8 1.2-.8 4.4-1.5 7.6-5.7 7.6-10.6C23.1 5.3 18.1 3 12 .3z"/></svg>
+      </span>
+      cloupi.github.io
+    </a>
+    <nav class="nav-links" aria-label="Primary navigation">
+      <a class="btn hide-sm" href="../../">Home</a>
+      <a class="btn active" href="../">Tools</a>
+      <a class="btn" href="../../apps">Apps</a>
+      <a class="btn" href="https://github.com/cloupi" target="_blank" rel="noopener">
+        <svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .3C5.9.3.9 5.3.9 11.4c0 4.9 3.2 9.1 7.6 10.6.6.1.8-.3.8-.6v-2c-3.1.7-3.7-1.5-3.7-1.5-.5-1.3-1.2-1.7-1.2-1.7-1-.7.1-.7.1-.7 1.1.1 1.7 1.1 1.7 1.1 1 1.7 2.6 1.2 3.2.9.1-.7.4-1.2.7-1.5-2.2-.3-4.6-1.1-4.6-5 0-1.1.4-2 1-2.7-.1-.3-.4-1.4.1-2.9 0 0 .9-.3 2.9 1.1.8-.2 1.7-.3 2.6-.3.9 0 1.8.1 2.6.3 2-1.4 2.9-1.1 2.9-1.1.5 1.5.2 2.6.1 2.9.6.7 1 1.6 1 2.7 0 3.9-2.4 4.7-4.6 5 .4.3.7 1 .7 2 0 1.5 0 2.6 0 3 .6.2 1.2-.8 1.2-.8 4.4-1.5 7.6-5.7 7.6-10.6C23.1 5.3 18.1 3 12 .3z"/></svg>
+        GitHub
+      </a>
+    </nav>
+  </div>
+</header>
+
+<!-- ===== Header ===== -->
+<section class="tool-header">
+  <div class="inner">
+    <span class="header-badge">
+      <svg class="icon" width="14" height="14" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M2 1.75C2 .784 2.784 0 3.75 0h4.586c.464 0 .909.184 1.237.513l4.914 4.914c.329.328.513.773.513 1.237V14.25c0 .966-.784 1.75-1.75 1.75H3.75A1.75 1.75 0 0 1 2 14.25Zm7.5.427v3.573h3.573ZM6 8h4a.75.75 0 0 1 0 1.5H6A.75.75 0 0 1 6 8Zm0 3h4a.75.75 0 0 1 0 1.5H6A.75.75 0 0 1 6 11Z"/></svg>
+      Tool · Branch tools
+    </span>
+    <h1>Bilibili Downloader</h1>
+    <p class="lead">Resolve any Bilibili video, pick quality, frame rate and download speed. Works fully in your browser.</p>
+    <a class="back" href="../">
+      <svg class="icon" width="14" height="14" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M6.78 3.22a.75.75 0 0 0 0 1.06L10.439 8 6.78 11.72a.75.75 0 1 0 1.06 1.06l4.25-4.25a.75.75 0 0 0 0-1.06L7.84 3.22a.75.75 0 0 0-1.06 0Z"/></svg>
+      Back to Tools
+    </a>
+  </div>
+</section>
+
+<!-- ===== Main ===== -->
+<section class="page">
+  <div class="wrap content-wrap">
+
+    <!-- Left column -->
+    <main class="left" style="min-width:0">
+
+      <!-- Input -->
+      <div class="card">
+        <h2>Resolve a video</h2>
+        <label class="field-label" for="url">Bilibili URL or BV id</label>
+        <div class="url-row">
+          <input id="url" type="url" placeholder="https://www.bilibili.com/video/BV1xx411c7mD" spellcheck="false" autocomplete="off">
+          <button class="btn btn-primary" id="resolve">Resolve</button>
+        </div>
+        <div class="sample-row" id="samples"></div>
+        <div class="state-line" id="state"></div>
+      </div>
+
+      <!-- Video -->
+      <div class="card" id="videoCard" hidden>
+        <div class="v-head">
+          <img class="v-cover" id="cover" alt="cover">
+          <div style="min-width:0">
+            <div class="v-title" id="vtitle"></div>
+            <div class="v-meta" id="vmeta"></div>
+          </div>
+        </div>
+
+        <div class="opt-group">
+          <div class="opt-label">Quality <span class="hint" id="qHint"></span></div>
+          <div class="chips" id="qChips"></div>
+        </div>
+        <div class="opt-group">
+          <div class="opt-label">Frame rate <span class="hint">filtered from the stream</span></div>
+          <div class="chips" id="fChips"></div>
+        </div>
+        <div class="opt-group">
+          <div class="opt-label">Audio <span class="hint">best track available</span></div>
+          <div class="chips" id="aChips"></div>
+        </div>
+
+        <div class="preview">
+          <video id="pv" controls playsinline preload="metadata"></video>
+          <div class="speed-row">
+            <span class="tag">Preview speed</span>
+            <button class="speed-btn" data-s="0.5">0.5×</button>
+            <button class="speed-btn active" data-s="1">1×</button>
+            <button class="speed-btn" data-s="1.5">1.5×</button>
+            <button class="speed-btn" data-s="2">2×</button>
+          </div>
+        </div>
+
+        <div class="dl-row">
+          <button class="btn btn-accent" id="dlBtn">
+            <svg class="icon" width="14" height="14" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M2.75 14A1.75 1.75 0 0 1 1 12.25v-2.5a.75.75 0 0 1 1.5 0v2.5c0 .138.112.25.25.25h10.5a.25.25 0 0 0 .25-.25v-2.5a.75.75 0 0 1 1.5 0v2.5A1.75 1.75 0 0 1 13.25 14Z"/><path d="M7.25 7.689V2a.75.75 0 0 1 1.5 0v5.689l1.97-1.969a.749.749 0 1 1 1.06 1.06l-3.25 3.25a.749.749 0 0 1-1.06 0L4.22 6.78a.749.749 0 1 1 1.06-1.06l1.97 1.969Z"/></svg>
+            Download
+          </button>
+          <select class="sel" id="fmt" style="width:auto;margin:0" aria-label="Download format">
+            <option value="video">Video only (MP4)</option>
+            <option value="audio">Audio only (M4A)</option>
+            <option value="both">Video + Audio (2 files)</option>
+          </select>
+          <select class="sel" id="spd" style="width:auto;margin:0" aria-label="Download speed">
+            <option value="1">Speed ×1</option>
+            <option value="2">Speed ×2</option>
+            <option value="4">Speed ×4</option>
+          </select>
+        </div>
+        <div class="dl-notes" id="dlNotes"></div>
+        <div class="bar" id="dlBar" hidden><div class="bar-fill" id="dlFill"></div></div>
+        <div class="dl-log" id="dlLog"></div>
+
+        <div class="cmd-box" id="cmdBox" hidden>
+          <div class="cmd-head"><span class="t">Command line download (bypasses browser CORS &amp; hotlink rules)</span>
+            <button class="copy-btn" id="copyCmd">Copy</button></div>
+          <pre class="code" id="cmdText"></pre>
+        </div>
+      </div>
+    </main>
+
+    <!-- Right column -->
+    <aside style="min-width:0">
+
+      <div class="card">
+        <h2>Advanced</h2>
+        <div class="setting-row">
+          <div class="lbl">CORS proxy<small>Some browsers block Bilibili API calls</small></div>
+          <label class="switch"><input type="checkbox" id="pxOn"><span class="slider"></span></label>
+        </div>
+        <select class="sel" id="pxSel" disabled>
+          <option value="https://api.allorigins.win/raw?url=">allorigins</option>
+          <option value="https://corsproxy.io/?url=">corsproxy.io</option>
+          <option value="https://api.codetabs.com/v1/proxy?quest=">codetabs</option>
+          <option value="custom">Custom…</option>
+        </select>
+        <input class="url-row" id="pxCustom" type="url" placeholder="https://my-proxy.example/?url=" hidden style="display:block;margin-top:6px;width:100%;padding:8px 10px;font-size:13px;border:1px solid var(--border);border-radius:8px;background:var(--bg-inset);color:var(--fg)">
+        <div class="proxy-hint">A proxy rewrites the API call so the browser accepts it. Public proxies may rate-limit. Download URLs are never proxied unless the CDN blocks CORS.</div>
+
+        <div class="setting-row">
+          <div class="lbl">Auto WBI signing<small>Required by the player API</small></div>
+          <label class="switch"><input type="checkbox" id="wbi" checked><span class="slider"></span></label>
+        </div>
+        <div class="setting-row">
+          <div class="lbl">Auto filename<small>Use the video title</small></div>
+          <label class="switch"><input type="checkbox" id="nameOk" checked><span class="slider"></span></label>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>History</h2>
+        <div id="hist"></div>
+        <button class="btn" id="clearHist" style="margin-top:10px;width:100%;justify-content:center">Clear history</button>
+      </div>
+    </aside>
+  </div>
+</section>
+
+<!-- ===== Footer ===== -->
+<footer>
+  <div class="foot">
+    <span>© 2026 cloupi · Powered by GitHub Pages</span>
+    <span><a href="https://cloupi.github.io" target="_blank" rel="noopener">cloupi.github.io</a> · <a href="https://github.com/cloupi" target="_blank" rel="noopener">github.com/cloupi</a></span>
+  </div>
+</footer>
+
+<script>
+'use strict';
+/* ===== helpers ===== */
+function $(id){return document.getElementById(id);}
+function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function fmtTime(sec){
+  if(!isFinite(sec))return '--:--';
+  var h=Math.floor(sec/3600),m=Math.floor(sec%3600/60),s=Math.floor(sec%60);
+  return (h?h+':':'')+String(m).padStart(h?2:1,'0')+':'+String(s).padStart(2,'0');
+}
+function fmtBytes(b){
+  if(!isFinite(b))return '? MB';
+  if(b<1024)return b+' B';
+  if(b<1048576)return (b/1024).toFixed(1)+' KB';
+  if(b<1073741824)return (b/1048576).toFixed(1)+' MB';
+  return (b/1073741824).toFixed(2)+' GB';
+}
+function toast(m){var s=$('state');s.className='state-line err';s.textContent=m;}
+function note(m,cls){var s=$('state');s.className='state-line '+(cls||'');s.innerHTML=m;}
+/* ===== WBI signing (public algorithm) ===== */
+var MIXIN_KEY_ENC_TAB=[46,47,18,2,53,8,23,32,15,50,10,31,58,3,45,35,27,43,5,49,33,9,42,19,29,28,14,39,12,38,41,13,37,48,7,16,24,55,40,61,26,17,0,1,60,51,30,4,22,25,54,21,56,59,6,63,57,62,11,36,20,34,44,52];
+function getMixinKey(orig){
+  var k='';
+  for(var i=0;i<32;i++)k+=orig[MIXIN_KEY_ENC_TAB[i]];
+  return k;
+}
+function encWbi(params,imgKey,subKey){
+  var mixinKey=getMixinKey(imgKey+subKey);
+  var wts=Math.round(Date.now()/1000);
+  params.wts=wts;
+  var q=Object.keys(params).sort().map(function(k){return encodeURIComponent(k)+'='+encodeURIComponent(params[k]);}).join('&');
+  params.w_rid=md5(q+mixinKey);
+  return params;
+}
+/* md5 - compact public-domain implementation */
+function md5(str){
+  function rotl(x,n){return (x<<n)|(x>>>(32-n));}
+  function add(x,y){var l=(x&0xffff)+(y&0xffff);return ((x>>16)+(y>>16)+(l>>16)<<16)|(l&0xffff);}
+  function cmn(q,a,b,x,s,t){return add(rotl(add(add(a,q),add(x,t)),s),b);}
+  function ff(a,b,c,d,x,s,t){return cmn((b&c)|(~b&d),a,b,x,s,t);}
+  function gg(a,b,c,d,x,s,t){return cmn((b&d)|(c&~d),a,b,x,s,t);}
+  function hh(a,b,c,d,x,s,t){return cmn(b^c^d,a,b,x,s,t);}
+  function ii(a,b,c,d,x,s,t){return cmn(c^(b|~d),a,b,x,s,t);}
+  function toBytes(s){
+    var out=[],c=0,code;
+    for(var i=0;i<s.length;i++){
+      code=s.charCodeAt(i);
+      if(code<128){out[c++]=code;}
+      else if(code<2048){out[c++]=192|(code>>6);out[c++]=128|(code&63);}
+      else if(code<55296||code>=57344){out[c++]=224|(code>>12);out[c++]=128|((code>>6)&63);out[c++]=128|(code&63);}
+      else{i++;code=65536+((code&1023)<<10)|(s.charCodeAt(i)&1023);out[c++]=240|(code>>18);out[c++]=128|((code>>12)&63);out[c++]=128|((code>>6)&63);out[c++]=128|(code&63);}
+    }
+    return out;
+  }
+  var x=toBytes(unescape(encodeURIComponent(str)));
+  x[x.length]=128;
+  var len=x.length;
+  while(x.length%64!==56)x[x.length]=0;
+  var bitLen=len*8,low=bitLen&0xffffffff,high=(bitLen-low)/0x100000000;
+  for(var j=0;j<4;j++)x[x.length]=low&255,low=low>>>8;
+  for(j=0;j<4;j++)x[x.length]=high&255,high=high>>>8;
+  var a=1732584193,b=-271733879,c=-1732584194,d=271733878;
+  for(var k=0;k<x.length;k+=64){
+    var M=[];
+    for(var t=0;t<16;t++)M[t]=x[k+t*4]|(x[k+t*4+1]<<8)|(x[k+t*4+2]<<16)|(x[k+t*4+3]<<24);
+    var A=a,B=b,C=c,D=d;
+    a=ff(a,b,c,d,M[0],7,-680876936);d=ff(d,a,b,c,M[1],12,-389564586);c=ff(c,d,a,b,M[2],17,606105819);b=ff(b,c,d,a,M[3],22,-1044525330);
+    a=ff(a,b,c,d,M[4],7,-176418897);d=ff(d,a,b,c,M[5],12,1200080426);c=ff(c,d,a,b,M[6],17,-1473231341);b=ff(b,c,d,a,M[7],22,-45705983);
+    a=ff(a,b,c,d,M[8],7,1770035416);d=ff(d,a,b,c,M[9],12,-1958414417);c=ff(c,d,a,b,M[10],17,-42063);b=ff(b,c,d,a,M[11],22,-1990404162);
+    a=ff(a,b,c,d,M[12],7,1804603682);d=ff(d,a,b,c,M[13],12,-40341101);c=ff(c,d,a,b,M[14],17,-1502002290);b=ff(b,c,d,a,M[15],22,1236535329);
+    a=gg(a,b,c,d,M[1],5,-165796510);d=gg(d,a,b,c,M[6],9,-1069501632);c=gg(c,d,a,b,M[11],14,643717713);b=gg(b,c,d,a,M[0],20,-373897302);
+    a=gg(a,b,c,d,M[5],5,-701558691);d=gg(d,a,b,c,M[10],9,38016083);c=gg(c,d,a,b,M[15],14,-660478335);b=gg(b,c,d,a,M[4],20,-405537848);
+    a=gg(a,b,c,d,M[9],5,568446438);d=gg(d,a,b,c,M[14],9,-1019803690);c=gg(c,d,a,b,M[3],14,-187363961);b=gg(b,c,d,a,M[8],20,1163531501);
+    a=gg(a,b,c,d,M[13],5,-1444681467);d=gg(d,a,b,c,M[2],9,-51403784);c=gg(c,d,a,b,M[7],14,1735328473);b=gg(b,c,d,a,M[12],20,-1926607734);
+    a=hh(a,b,c,d,M[5],4,-378558);d=hh(d,a,b,c,M[8],11,-2022574463);c=hh(c,d,a,b,M[11],16,1839030562);b=hh(b,c,d,a,M[14],23,-35309556);
+    a=hh(a,b,c,d,M[1],4,-1530992060);d=hh(d,a,b,c,M[4],11,1272893353);c=hh(c,d,a,b,M[7],16,-155497632);b=hh(b,c,d,a,M[10],23,-1094730640);
+    a=hh(a,b,c,d,M[13],4,681279174);d=hh(d,a,b,c,M[0],11,-358537222);c=hh(c,d,a,b,M[3],16,-722521979);b=hh(b,c,d,a,M[6],23,76029189);
+    a=hh(a,b,c,d,M[9],4,-640364487);d=hh(d,a,b,c,M[12],11,-421815835);c=hh(c,d,a,b,M[15],16,530742520);b=hh(b,c,d,a,M[2],23,-995338651);
+    a=ii(a,b,c,d,M[0],6,-198630844);d=ii(d,a,b,c,M[7],10,1126891415);c=ii(c,d,a,b,M[14],15,-1416354905);b=ii(b,c,d,a,M[5],21,-57434055);
+    a=ii(a,b,c,d,M[12],6,1700485571);d=ii(d,a,b,c,M[3],10,-1894986606);c=ii(c,d,a,b,M[10],15,-1051523);b=ii(b,c,d,a,M[1],21,-2054922799);
+    a=ii(a,b,c,d,M[8],6,1873313359);d=ii(d,a,b,c,M[15],10,-30611744);c=ii(c,d,a,b,M[6],15,-1560198380);b=ii(b,c,d,a,M[13],21,1309151649);
+    a=ii(a,b,c,d,M[4],6,-145523070);d=ii(d,a,b,c,M[11],10,-1120210379);c=ii(c,d,a,b,M[2],15,718787259);b=ii(b,c,d,a,M[9],21,-343485551);
+    a=add(a,A);b=add(b,B);c=add(c,C);d=add(d,D);
+  }
+  function h(n){
+    var s='';
+    for(var r=0;r<4;r++)s+=('0'+((n>>(r*8))&255).toString(16)).slice(-2);
+    return s;
+  }
+  return h(a)+h(b)+h(c)+h(d);
+}
+/* ===== proxy ===== */
+var pxOn=$('pxOn'),pxSel=$('pxSel'),pxCustom=$('pxCustom');
+function currentProxy(){
+  if(!pxOn.checked)return '';
+  if(pxSel.value==='custom')return pxCustom.value.trim();
+  return pxSel.value;
+}
+function withProxy(u){
+  var p=currentProxy();
+  if(!p)return u;
+  if(p.indexOf('{u}')>-1)return p.replace('{u}',encodeURIComponent(u));
+  return p+encodeURIComponent(u);
+}
+/* ===== resolve ===== */
+var samples=[
+  'https://www.bilibili.com/video/BV1GJ411x7h7',
+  'BV1xx411c7mD',
+  'https://b23.tv/BV1GJ411x7h7'
+];
+function renderSamples(){
+  var box=$('samples');box.innerHTML='';
+  samples.forEach(function(s){
+    var el=document.createElement('button');el.className='sample';el.type='button';
+    el.textContent=s.length>32?s.slice(0,32)+'…':s;
+    el.addEventListener('click',function(){$('url').value=s;resolve();});
+    box.appendChild(el);
+  });
+}
+function extractBv(text){
+  var m=String(text||'').trim().match(/BV[0-9A-Za-z]{10}/);
+  return m?m[0]:null;
+}
+var STATE=null;
+function resolve(){
+  var bv=extractBv($('url').value);
+  if(!bv){toast('Could not find a valid BV id in that URL.');return;}
+  $('videoCard').hidden=true;STATE=null;
+  note('Resolving <b>'+esc(bv)+'</b>…','');
+  var sp=document.createElement('span');sp.className='spin';$('state').appendChild(sp);
+  fetchJson('https://api.bilibili.com/x/web-interface/view?bvid='+bv)
+    .then(function(info){
+      var d=info.data;
+      if(!d){throw new Error('Unexpected API response');}
+      var qs=[];
+      if(d.pages&&d.pages.length>1){
+        d.pages.forEach(function(p,i){qs.push({label:'P'+(i+1)+' · '+p.part,cid:p.cid});});
+      }else{
+        qs=[{label:'Part 1',cid:d.cid}];
+      }
+      STATE={bvid:bv,cid:d.cid,pages:qs,pageIdx:0,title:d.title,pic:d.pic,
+        owner:d.owner&&d.owner.name,view:d.stat&&d.stat.view,
+        duration:d.duration,tname:d.tname,desc:d.desc};
+      return fetchPlayurl();
+    })
+    .then(function(){renderVideo();})
+    .catch(function(e){note('Failed: '+esc(e.message),'err');});
+}
+function apiFetch(url){
+  var ctrl=new AbortController();
+  var t=setTimeout(function(){ctrl.abort();},12000);
+  return fetch(withProxy(url),{signal:ctrl.signal,headers:{'Accept':'application/json'}}).then(function(r){
+    clearTimeout(t);
+    if(!r.ok)throw new Error('HTTP '+r.status);
+    return r.json();
+  });
+}
+function fetchJson(url){
+  return apiFetch(url).catch(function(e){
+    if(/abort/i.test(e.name||''))throw new Error('Request timed out');
+    if(e instanceof TypeError)throw new Error('CORS blocked the request — enable a proxy in Advanced');
+    throw e;
+  });
+}
+function fetchPlayurl(){
+  var s=STATE,u='https://api.bilibili.com/x/player/playurl?bvid='+s.bvid+'&cid='+s.cid+'&qn=127&fnval=4048&fourk=1&platform=pc&high_quality=1';
+  if($('wbi').checked){
+    /* fingerprint spi is proxied too */
+    var spi=apiFetch('https://api.bilibili.com/x/frontend/finger/spi').catch(function(){return null;});
+    return spi.then(function(r){
+      var imgKey='',subKey='';
+      if(r&&r.data){imgKey=r.data.b_3||'';subKey=r.data.b_2||'';}
+      var p=encWbi({bvid:s.bvid,cid:s.cid,qn:'127',fnval:'4048',fourk:'1',platform:'pc',high_quality:'1'},imgKey,subKey);
+      var q=Object.keys(p).map(function(k){return k+'='+p[k];}).join('&');
+      return apiFetch('https://api.bilibili.com/x/player/playurl?'+q);
+    }).then(handlePlay);
+  }
+  return apiFetch(u).then(handlePlay);
+}
+function handlePlay(r){
+  var d=r.data;
+  if(!d){throw new Error('API error '+r.code+': '+(r.message||'unknown'));}
+  STATE.dash=d.dash;
+  if(!d.dash||!d.dash.video||!d.dash.video.length){
+    var durl=d.durl;
+    if(durl&&durl.length){STATE.durl=durl[0];STATE.dash=null;return;}
+    throw new Error('No playable streams returned (may need login/cookie).');
+  }
+  /* group video streams by quality+frameRate */
+  var v=d.dash.video,groups={};
+  v.forEach(function(st){
+    var fr=st.frameRate;
+    var fps=fr?Math.round(parseFloat(fr.split('/')[0])/Math.max(1,parseFloat(fr.split('/')[1]||1))):30;
+    var id=st.id;
+    if(!groups[id])groups[id]={qn:id,width:st.width,height:st.height,codecs:st.codecs,fps:{},best:null};
+    if(!groups[id].fps[fps]||st.bandwidth>groups[id].fps[fps].bandwidth)groups[id].fps[fps]=st;
+    if(!groups[id].best||st.bandwidth>groups[id].best.bandwidth)groups[id].best=st;
+  });
+  STATE.vgroups=Object.keys(groups).map(function(k){return groups[k];})
+    .sort(function(a,b){return b.qn-a.qn;});
+  STATE.audios=(d.dash.audio||[]).slice().sort(function(a,b){return b.bandwidth-a.bandwidth;});
+  STATE.cur={qn:null,fps:null,audio:null};
+}
+function renderVideo(){
+  var s=STATE;
+  $('videoCard').hidden=false;
+  $('cover').src=s.pic;
+  $('vtitle').textContent=s.title;
+  $('vmeta').innerHTML='UP <b>'+esc(s.owner||'?')+'</b> · '+fmtTime(s.duration)+' · '+(s.tname||'')+' · '
+    +'<b>'+(s.view!=null?Number(s.view).toLocaleString()+' views':'')+'</b>';
+  var qh=$('qChips');qh.innerHTML='';
+  var vg=s.vgroups||[];
+  if(vg.length===0){
+    qh.innerHTML='<div class="empty">Only one stream available.</div>';
+    return;
+  }
+  var QNAME={127:'8K',120:'4K',116:'1080P60',112:'1080P+',80:'1080P',64:'720P',32:'480P',16:'360P',6:'240P',64:'720P'};
+  vg.forEach(function(g){
+    var el=document.createElement('button');el.type='button';el.className='chip';
+    var label=(QNAME[g.qn]||(g.height+'P'))+(g.fps[60]?'':'');
+    el.textContent=label;
+    el.dataset.qn=g.qn;
+    el.addEventListener('click',function(){pickQn(g.qn);});
+    qh.appendChild(el);
+  });
+  pickQn(vg[0].qn);
+  $('qHint').textContent=' · '+vg.length+' qualities found';
+}
+function pickQn(qn){
+  var s=STATE,g=null;
+  s.vgroups.forEach(function(v){if(v.qn===qn)g=v;});
+  if(!g)return;
+  s.cur.qn=qn;
+  var fh=$('fChips');fh.innerHTML='';
+  var frs=Object.keys(g.fps).map(Number).sort(function(a,b){return b-a;});
+  frs.forEach(function(f){
+    var el=document.createElement('button');el.type='button';el.className='chip';
+    el.textContent=f+' fps';
+    el.addEventListener('click',function(){pickFps(f);});
+    fh.appendChild(el);
+  });
+  pickFps(frs[0]);
+  document.querySelectorAll('#qChips .chip').forEach(function(el){
+    el.classList.toggle('active',el.dataset.qn==String(qn));
+  });
+}
+function pickFps(f){
+  var s=STATE,g=null;
+  s.vgroups.forEach(function(v){if(v.qn===s.cur.qn)g=v;});
+  s.cur.fps=f;
+  document.querySelectorAll('#fChips .chip').forEach(function(el){
+    el.classList.toggle('active',el.textContent.indexOf(f+' fps')===0);
+  });
+  var ah=$('aChips');ah.innerHTML='';
+  if(s.audios&&s.audios.length){
+    var best=s.audios[0];
+    s.cur.audio=best;
+    var el=document.createElement('button');el.type='button';el.className='chip active';
+    var kbps=Math.round((best.bandwidth||0)/1000);
+    el.textContent=best.codecs.indexOf('mp4a')>-1?'AAC':(best.codecs||'AAC')+' · '+(kbps?kbps+'kbps':'');
+    el.addEventListener('click',function(){});
+    ah.appendChild(el);
+    $('aChips').insertAdjacentHTML('beforeend','<span class="sub" style="margin:auto 4px 0 4px">auto-picks best audio</span>');
+  }
+  loadPreview();
+}
+function curVideo(){
+  var s=STATE,g=null;
+  s.vgroups.forEach(function(v){if(v.qn===s.cur.qn)g=v;});
+  return g.fps[s.cur.fps]||g.best;
+}
+function loadPreview(){
+  var st=curVideo();
+  if(!st)return;
+  var v=$('pv');v.src=st.baseUrl;
+  $('dlNotes').textContent='Preview &amp; download stream: '+fmtSize(st.size)+' · '+(st.codecs||'')+' · '+st.width+'×'+st.height;
+  $('dlNotes').textContent=$('dlNotes').textContent.replace('&amp;','&');
+}
+function fmtSize(b){return fmtBytes(b);}
+/* ===== preview speed ===== */
+document.querySelectorAll('.speed-btn').forEach(function(btn){
+  btn.addEventListener('click',function(){
+    document.querySelectorAll('.speed-btn').forEach(function(x){x.classList.remove('active');});
+    btn.classList.add('active');
+    $('pv').playbackRate=parseFloat(btn.dataset.s);
+  });
+});
+/* ===== download ===== */
+var downloading=false;
+$('dlBtn').addEventListener('click',function(){
+  if(!STATE||downloading)return;
+  var fmt=$('fmt').value;
+  if(fmt==='video'&&!curVideo()){toast('No video stream selected.');return;}
+  if(fmt==='audio'&&!STATE.audios.length){toast('No audio stream available.');return;}
+  downloading=true;
+  $('dlBtn').disabled=true;
+  $('dlBar').hidden=false;$('dlFill').style.width='0';
+  $('dlLog').textContent='';
+  $('cmdBox').hidden=false;
+  var jobs=[];
+  if(fmt==='video'||fmt==='both')jobs.push({st:curVideo(),kind:'video'});
+  if(fmt==='audio'||fmt==='both')jobs.push({st:STATE.cur.audio,kind:'audio'});
+  var nameBase=safeName(STATE.title);
+  var done=0;
+  jobs.forEach(function(j,idx){
+    var ext=j.kind==='video'?'.mp4':'.m4a';
+    var fn=($('nameOk').checked?nameBase:'bilibili_'+STATE.bvid)+'_'+j.kind+ext;
+    dlStream(j.st,fn,parseInt($('spd').value,10)||1,function(ok,msg){
+      done++;
+      if(!ok)logLine(msg);
+      if(done===jobs.length){downloading=false;$('dlBtn').disabled=false;logLine('Done.');}
+    });
+  });
+});
+function safeName(t){
+  return String(t||'video').replace(/[\\/:*?"<>|]/g,'_').replace(/\s+/g,' ').trim().slice(0,80)||'video';
+}
+function logLine(m){var l=$('dlLog');l.textContent=(l.textContent?l.textContent+'\n':'')+m;}
+function dlStream(st,fn,parts,cb){
+  var url=st.baseUrl,size=st.size||0;
+  buildCmd(st,fn);
+  fetch(url,{method:'GET'}).then(function(r){
+    if(!r.ok)throw new Error('HTTP '+r.status);
+    var total=parseInt(r.headers.get('Content-Length')||'0',10)||size;
+    return r.blob().then(function(b){return {b:b,total:total};});
+  }).then(function(res){
+    saveBlob(res.b,fn);
+    logLine('Saved: '+fn+' ('+fmtBytes(res.total)+')');
+    cb(true);
+  }).catch(function(e){
+    var msg=(e instanceof TypeError)?'CORS blocked the CDN — use the command below':e.message;
+    logLine('Browser download failed: '+msg);
+    logLine('Command copied-ready (click Copy).');
+    cb(false,msg);
+  });
+}
+function saveBlob(b,fn){
+  var a=document.createElement('a');
+  a.href=URL.createObjectURL(b);a.download=fn;
+  document.body.appendChild(a);a.click();
+  setTimeout(function(){URL.revokeObjectURL(a.href);a.remove();},4000);
+}
+function buildCmd(st,fn){
+  var url=st.baseUrl;
+  var escq=function(s){return '"'+s.replace(/"/g,'\\"')+'"';};
+  $('cmdText').textContent='curl -L -H "Referer: https://www.bilibili.com" -H "User-Agent: Mozilla/5.0" -o '+escq(fn)+' '+escq(url);
+  $('cmdBox').hidden=false;
+}
+$('copyCmd').addEventListener('click',function(){
+  var t=$('cmdText').textContent;
+  function done(){var b=$('copyCmd');b.textContent='Copied';setTimeout(function(){b.textContent='Copy';},1200);}
+  if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(done).catch(function(){fallback();});}
+  else fallback();
+  function fallback(){
+    var ta=document.createElement('textarea');ta.value=t;document.body.appendChild(ta);ta.select();
+    try{document.execCommand('copy');done();}catch(e){toast('Copy failed — select the command manually.');}
+    ta.remove();
+  }
+});
+/* ===== history ===== */
+function getHist(){try{return JSON.parse(localStorage.getItem('bdl_hist')||'[]');}catch(e){return [];}}
+function setHist(h){try{localStorage.setItem('bdl_hist',JSON.stringify(h.slice(0,12)));}catch(e){}}
+function addHist(title,bv){
+  var h=getHist();
+  h=h.filter(function(x){return x.bv!==bv;});
+  h.unshift({t:title,bv:bv,at:new Date().toLocaleTimeString()});
+  setHist(h);renderHist();
+}
+function renderHist(){
+  var h=getHist(),box=$('hist');
+  box.innerHTML='';
+  if(!h.length){box.innerHTML='<div class="empty">No resolutions yet.</div>';return;}
+  h.forEach(function(x){
+    var row=document.createElement('div');row.className='hist-item';
+    row.innerHTML='<span class="t">'+esc(x.t)+'</span><span class="m">'+esc(x.bv)+'</span><button type="button">Load</button>';
+    row.querySelector('button').addEventListener('click',function(){$('url').value=x.bv;resolve();});
+    box.appendChild(row);
+  });
+}
+$('clearHist').addEventListener('click',function(){setHist([]);renderHist();});
+/* ===== settings ===== */
+pxSel.addEventListener('change',function(){pxCustom.hidden=pxSel.value!=='custom';});
+pxOn.addEventListener('change',function(){pxSel.disabled=!pxOn.checked;if(pxOn.checked&&pxSel.value==='custom')pxCustom.hidden=false;});
+/* ===== enter key ===== */
+$('url').addEventListener('keydown',function(e){if(e.key==='Enter')resolve();});
+$('resolve').addEventListener('click',resolve);
+/* ===== init ===== */
+renderSamples();renderHist();
+</script>
+</body>
+</html>
